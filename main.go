@@ -2,14 +2,22 @@ package main
 
 import (
 	"flag"
-	"time"
-	"vsync/server"
+	"sync"
+	"vsync/client"
+	"vsync/flags"
+	"vsync/host"
 )
 
 func main() {
-	interval := *flag.Duration("i", 1 * time.Second, "The interval with which to poll.")
-	listen := *flag.Int("l", 4242, "The port on which to listen.")
-	speak := *flag.Int("s", 8484, "The port on which to speak.")
 
 	flag.Parse()
+	wg := &sync.WaitGroup{}
+	if *flags.Host {
+		h := host.New()
+		h.Listen()
+	} else {
+		c := client.New(wg)
+		c.Connect(10)
+	}
+	wg.Wait()
 }
