@@ -5,7 +5,7 @@ import "time"
 type Signal int
 
 const (
-	On = iota
+	On Signal = iota
 	Off
 	Kill
 )

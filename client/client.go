@@ -34,18 +34,18 @@ func (c *Client) Connect(retries int) {
 	for retries >= 0 {
 		r, err := c.c.Do(c.makeRequest("connect"))
 		if err != nil || r.StatusCode != http.StatusOK {
-			fmt.Printf("%v Failed to connect. Retrying...\n", log.Now())
+			log.Printf("Failed to connect. Retrying...\n")
 			retries--
 			time.Sleep(1 * time.Second)
 		} else {
-			fmt.Printf("%v Successfuly connected to host: %v\n", log.Now(), c.url)
+			log.Printf("Successfully connected to host: %v\n", c.url)
 			c.ticker <- ticker.On
 			c.wg.Add(1)
 			return
 		}
 	}
 	c.wg.Done()
-	panic(fmt.Sprintf("%v Failed to connect to host: %v\n", time.Now(), c.url))
+	panic(log.Sprintf("Failed to connect to host: %v\n", c.url))
 }
 
 func (c *Client) update() {
@@ -62,7 +62,6 @@ func (c *Client) loop(ticks <-chan time.Time) {
 		c.update()
 	}
 }
-
 
 func (c *Client) makeRequest(s string) *http.Request {
 		url := fmt.Sprintf("%v/%v", c.url, s)

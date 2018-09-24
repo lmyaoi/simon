@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	flag.Parse()
 	wg := &sync.WaitGroup{}
 	if *flags.Host {

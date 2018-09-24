@@ -1,17 +1,23 @@
 package vlc
 
 import (
-	"fmt"
-	"time"
+	"vsync/log"
 )
 
-type Status struct {
+type Playlist struct {
+	current int
+	// todo: actual playlist
+}
 
+type Status struct {
+	audioDelay int
+	subtitleDelay int
+	playlist Playlist
+	paused bool
 }
 
 var Latest Status
 
 func (*Status) String() string {
-	now := time.Now()
-	return fmt.Sprintf("[%v:%v:%v] <INSERT DATA HERE>", now.Hour(), now.Minute(), now.Second())
+	return log.Sprintf("<INSERT DATA HERE>")
 }

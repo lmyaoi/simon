@@ -13,12 +13,12 @@ type Host struct {
 }
 
 func updateHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("%v update request received from %v\n", log.Now(), r.RemoteAddr)
+	log.Printf("update request received from %v\n", r.RemoteAddr)
 	fmt.Fprintf(w, "%v\n", vlc.Latest.String())
 }
 
 func connectionHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("%v connection request received from %v\n", log.Now(), r.RemoteAddr)
+	log.Printf("connection request received from %v\n", r.RemoteAddr)
 	fmt.Fprintf(w, "%v\n", "welcome to the darkside love")
 }
 
