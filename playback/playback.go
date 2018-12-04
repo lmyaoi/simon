@@ -13,15 +13,24 @@ type Server interface {
 	Last() Status // request last requested playback status
 }
 
+type Dummy int
+const D Dummy = 0
+
+func (Dummy) Connect() {}// connects to the playback server
+func (Dummy) SetState(state State) {}// sets playback state
+func (Dummy) Sync(Status) {}// syncs playback
+func (Dummy) Status() Status {return nil}// request current playback status
+func (Dummy) Last() Status {return nil}// request last requested playback status
+
+
 type Status interface {
 	State() State
 	Pos() time.Time
 	Created() time.Time
+	Marshal() []byte
 }
 
-type StatusUnmarshaler interface {
-	Unmarshal(io.Reader) Status
-}
+type StatusUnmarshaler func (io.Reader) Status
 
 func Now(s Status) time.Time {
 	if s.State() == Paused {

@@ -8,8 +8,12 @@ import (
 
 type Host struct {
 	client *http.Client
-	url url.URL
-	unmarshaler playback.StatusUnmarshaler
+	url *url.URL
+	unmarshal playback.StatusUnmarshaler
+}
+
+func NewHost(url *url.URL, unmarshal playback.StatusUnmarshaler) *Host {
+	return &Host{&http.Client{}, url, unmarshal}
 }
 
 func (h *Host) Status() playback.Status {
@@ -17,7 +21,8 @@ func (h *Host) Status() playback.Status {
 	if err != nil {
 		panic(err)
 	}
-	s := h.unmarshaler.Unmarshal(res.Body)
+	s := h.unmarshal(res.Body)
+
 	defer res.Body.Close()
 	return s
 }
