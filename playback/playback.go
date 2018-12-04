@@ -1,6 +1,9 @@
 package playback
 
-import "time"
+import (
+	"io"
+	"time"
+)
 
 type Server interface {
 	Connect() // connects to the playback server
@@ -14,6 +17,10 @@ type Status interface {
 	State() State
 	Pos() time.Time
 	Created() time.Time
+}
+
+type StatusUnmarshaler interface {
+	Unmarshal(io.Reader) Status
 }
 
 func Now(s Status) time.Time {

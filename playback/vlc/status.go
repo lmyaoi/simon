@@ -1,7 +1,6 @@
 package vlc
 
 import (
-	"encoding/json"
 	"io"
 	"time"
 	"vsync/playback"
@@ -13,30 +12,8 @@ type Status struct {
 	id int
 }
 
-func json2struct (r io.Reader) *struct {Length int64; Position float64; State string; Currentplid int} {
-	s := &struct {Length int64; Position float64; State string; Currentplid int}{}
-	err := json.NewDecoder(r).Decode(s)
-	if err != nil { panic(err) }
-	return s
-}
-
-func string2state (str string) playback.State {
-	switch str {
-	case "stopped": return playback.Stopped
-	case "playing": return playback.Playing
-	case "paused": return playback.Paused
-	default: panic("Impossible state string")
-	}
-}
-
 func NewStatus(body io.Reader) *Status {
-	obj := json2struct(body)
-	return &Status{
-		state: string2state(obj.State),
-		pos: time.Unix(toAccurateTime(obj.Position, obj.Length)),
-		created: time.Now(),
-		id: obj.Currentplid,
-	}
+	return Unmarshal(body)
 }
 
 func toAccurateTime(p float64, length int64) (int64, int64) {
