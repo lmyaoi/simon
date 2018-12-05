@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os/exec"
 	"time"
-	"vsync/flags"
 	"vsync/log"
 	"vsync/playback"
 )
@@ -46,7 +45,7 @@ func New(addr *url.URL, cmd *exec.Cmd) *Server {
 		created: time.Now(),
 		id:      -1,
 	}
-	return &Server{addr: addr, client: &http.Client{}, last: stat, username: "", password: *flags.VlcPwd, cmd: cmd}
+	return &Server{addr: addr, client: &http.Client{}, last: stat, username: "", password: "q", cmd: cmd}
 }
 
 func (vlc *Server) Connect() {

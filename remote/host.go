@@ -21,8 +21,8 @@ func (h *Host) Status() playback.Status {
 	if err != nil {
 		panic(err)
 	}
+	defer res.Body.Close()
 	s := h.unmarshal(res.Body)
 
-	defer res.Body.Close()
 	return s
 }
