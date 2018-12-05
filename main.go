@@ -19,8 +19,10 @@ func main() {
 	flag.Parse()
 	wg := &sync.WaitGroup{}
 
-	addr, _ := url.Parse("http://:" + vlcPort())
-	cmd := exec.Command("/Applications/VLC.app/Contents/MacOS/VLC", "--extraintf", "http", "--http-port", vlcPort(), "--http-password", *flags.VlcPwd)
+	addr, _ := url.Parse(fmt.Sprintf("http://localhost:%v", *flags.VlcPort))
+
+	vlcArgs := []string{"--extraintf", "http", "--http-port", strconv.Itoa(*flags.VlcPort), "--http-password", "q"}
+	cmd := exec.Command(flags.Vlc(), vlcArgs...)
 	server := vlc.New(addr, cmd)
 
 	server.Connect()
@@ -32,17 +34,10 @@ func main() {
 		h = local.NewHost(server)
 		client = local.NewClient(playback.D, h, wg)
 	} else {
-		hostAddr, _ := url.Parse(fmt.Sprintf("http://:%v", *flags.HostPort))
+		hostAddr, _ := url.Parse(fmt.Sprintf("http://%v:%v", *flags.HostUrl, *flags.HostPort))
 		h = remote.NewHost(hostAddr, vlc.Unmarshal)
 		client = local.NewClient(server, h, wg)
 	}
 	client.On()
 	wg.Wait()
-}
-
-func vlcPort() string {
-	if *flags.Host {
-		return strconv.FormatInt(int64(*flags.VlcPort), 10)
-	}
-	return strconv.FormatInt(int64(*flags.VlcPort + 1), 10)
 }

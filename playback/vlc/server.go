@@ -15,19 +15,19 @@ import (
 var (
 	status = "/requests/status.json"
 	//playlist = "/requests/playlist.json"
-	play = status + "?command=pl_forceresume"
+	play  = status + "?command=pl_forceresume"
 	pause = status + "?command=pl_forcepause"
-	stop = status + "?command=pl_stop"
-	jump = func (id int) string { return fmt.Sprintf(status + "?command=pl_play&id=%v", id) }
-	seek = func (pos int64) string { return fmt.Sprintf(status + "?command=seek&val=%v", pos) }
+	stop  = status + "?command=pl_stop"
+	jump  = func(id int) string { return fmt.Sprintf(status+"?command=pl_play&id=%v", id) }
+	seek  = func(pos int64) string { return fmt.Sprintf(status+"?command=seek&val=%v", pos) }
 )
 
 type Server struct {
-	addr *url.URL
-	last *Status
-	client *http.Client
+	addr               *url.URL
+	last               *Status
+	client             *http.Client
 	username, password string
-	cmd *exec.Cmd
+	cmd                *exec.Cmd
 }
 
 func (vlc *Server) newRequest(path string) *http.Request {
@@ -41,10 +41,10 @@ func (vlc *Server) newRequest(path string) *http.Request {
 
 func New(addr *url.URL, cmd *exec.Cmd) *Server {
 	stat := &Status{
-		state: playback.Stopped,
-		pos: time.Unix(0, 0),
+		state:   playback.Stopped,
+		pos:     time.Unix(0, 0),
 		created: time.Now(),
-		id: -1,
+		id:      -1,
 	}
 	return &Server{addr: addr, client: &http.Client{}, last: stat, username: "", password: *flags.VlcPwd, cmd: cmd}
 }
@@ -82,10 +82,14 @@ func (vlc *Server) SetState(s playback.State) {
 
 func getStatePath(s playback.State) string {
 	switch s {
-	case playback.Stopped: return stop
-	case playback.Playing: return play
-	case playback.Paused: return pause
-	default: panic("unsupported playback state")
+	case playback.Stopped:
+		return stop
+	case playback.Playing:
+		return play
+	case playback.Paused:
+		return pause
+	default:
+		panic("unsupported playback state")
 	}
 
 }

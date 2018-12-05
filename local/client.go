@@ -10,11 +10,11 @@ import (
 )
 
 type Client struct {
-	server playback.Server
-	host   host.Host
+	server  playback.Server
+	host    host.Host
 	control chan<- ticker.Signal
-	signal <-chan time.Time
-	wg *sync.WaitGroup
+	signal  <-chan time.Time
+	wg      *sync.WaitGroup
 }
 
 func NewClient(s playback.Server, h host.Host, wg *sync.WaitGroup) *Client {
@@ -36,14 +36,14 @@ func (c *Client) loop() {
 
 func (c *Client) On() {
 	c.wg.Add(1)
-	c.control<-ticker.On
+	c.control <- ticker.On
 }
 
 func (c *Client) Off() {
-	c.control<-ticker.Off
+	c.control <- ticker.Off
 }
 
 func (c *Client) Kill() {
 	c.wg.Done()
-	c.control<-ticker.Kill
+	c.control <- ticker.Kill
 }

@@ -16,8 +16,8 @@ const (
 
 type Host struct {
 	playback playback.Server
-	server http.Server
-	control <-chan Signal
+	server   http.Server
+	control  <-chan Signal
 }
 
 func (h *Host) Status() playback.Status {
@@ -28,8 +28,8 @@ func NewHost(playback playback.Server) *Host {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status", serveStatus(playback))
 	server := http.Server{
-		Addr:              fmt.Sprintf(":%v", *flags.HostPort),
-		Handler:           mux,
+		Addr:    fmt.Sprintf(":%v", *flags.HostPort),
+		Handler: mux,
 	}
 	control := make(chan Signal)
 	h := &Host{playback, server, control}
@@ -37,8 +37,8 @@ func NewHost(playback playback.Server) *Host {
 	return h
 }
 
-func serveStatus(server playback.Server) func (w http.ResponseWriter, r *http.Request) {
-	return func (w http.ResponseWriter, r *http.Request) {
+func serveStatus(server playback.Server) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		stat := server.Status().Marshal()
 		if _, err := w.Write(stat); err != nil {
 			panic(err)

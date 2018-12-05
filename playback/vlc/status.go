@@ -8,9 +8,9 @@ import (
 )
 
 type Status struct {
-	state playback.State
+	state        playback.State
 	pos, created time.Time
-	id int
+	id           int
 }
 
 func NewStatus(body io.Reader) *Status {
@@ -24,26 +24,26 @@ func NewStatus(body io.Reader) *Status {
 }
 
 type marshalable struct {
-	State int
+	State        int
 	Pos, Created int64
-	Id int
+	Id           int
 }
 
 func (s *Status) toMS() *marshalable {
 	return &marshalable{
-		State: int(s.state),
-		Pos: s.pos.UnixNano(),
+		State:   int(s.state),
+		Pos:     s.pos.UnixNano(),
 		Created: s.created.UnixNano(),
-		Id: s.id,
+		Id:      s.id,
 	}
 }
 
-func (ms *marshalable) toS() *Status  {
+func (ms *marshalable) toS() *Status {
 	return &Status{
-		state: playback.State(ms.State),
-		pos: time.Unix(0, ms.Pos),
+		state:   playback.State(ms.State),
+		pos:     time.Unix(0, ms.Pos),
 		created: time.Unix(0, ms.Created),
-		id: ms.Id,
+		id:      ms.Id,
 	}
 }
 
@@ -84,19 +84,35 @@ func verify(s playback.Status) *Status {
 	return t
 }
 
-func json2struct (r io.Reader) *struct {Length int64; Position float64; State string; Currentplid int} {
-	s := &struct {Length int64; Position float64; State string; Currentplid int}{}
+func json2struct(r io.Reader) *struct {
+	Length      int64
+	Position    float64
+	State       string
+	Currentplid int
+} {
+	s := &struct {
+		Length      int64
+		Position    float64
+		State       string
+		Currentplid int
+	}{}
 	err := json.NewDecoder(r).Decode(s)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 	return s
 }
 
-func string2state (str string) playback.State {
+func string2state(str string) playback.State {
 	switch str {
-	case "stopped": return playback.Stopped
-	case "playing": return playback.Playing
-	case "paused": return playback.Paused
-	default: panic("Impossible state string")
+	case "stopped":
+		return playback.Stopped
+	case "playing":
+		return playback.Playing
+	case "paused":
+		return playback.Paused
+	default:
+		panic("Impossible state string")
 	}
 }
 

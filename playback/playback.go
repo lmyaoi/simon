@@ -6,22 +6,22 @@ import (
 )
 
 type Server interface {
-	Connect() // connects to the playback server
+	Connect()             // connects to the playback server
 	SetState(state State) // sets playback state
-	Sync(Status) // syncs playback
-	Status() Status // request current playback status
-	Last() Status // request last requested playback status
+	Sync(Status)          // syncs playback
+	Status() Status       // request current playback status
+	Last() Status         // request last requested playback status
 }
 
 type Dummy int
+
 const D Dummy = 0
 
-func (Dummy) Connect() {}// connects to the playback server
-func (Dummy) SetState(state State) {}// sets playback state
-func (Dummy) Sync(Status) {}// syncs playback
-func (Dummy) Status() Status {return nil}// request current playback status
-func (Dummy) Last() Status {return nil}// request last requested playback status
-
+func (Dummy) Connect()             {}             // connects to the playback server
+func (Dummy) SetState(state State) {}             // sets playback state
+func (Dummy) Sync(Status)          {}             // syncs playback
+func (Dummy) Status() Status       { return nil } // request current playback status
+func (Dummy) Last() Status         { return nil } // request last requested playback status
 
 type Status interface {
 	State() State
@@ -30,7 +30,7 @@ type Status interface {
 	Marshal() []byte
 }
 
-type StatusUnmarshaler func (io.Reader) Status
+type StatusUnmarshaler func(io.Reader) Status
 
 func Now(s Status) time.Time {
 	if s.State() == Paused {
@@ -46,8 +46,9 @@ func WorthSeeking(s1, s2 Status) bool {
 	if diff < 0 {
 		diff = -diff
 	}
-	return time.Duration(diff) >= 1 * time.Second
+	return time.Duration(diff) >= 1*time.Second
 }
+
 type State int
 
 const (

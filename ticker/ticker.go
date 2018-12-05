@@ -28,11 +28,11 @@ func New(d time.Duration) (<-chan time.Time, chan<- Signal) {
 func (t *Ticker) loop(signal chan<- time.Time) {
 	for {
 		select {
-		case tick := <- t.t.C:
+		case tick := <-t.t.C:
 			if t.on {
 				signal <- tick
 			}
-		case s := <- t.control:
+		case s := <-t.control:
 			switch s {
 			case Kill:
 				t.t.Stop()

@@ -9,7 +9,7 @@ import (
 	"vsync/playback"
 )
 
-func setup() (*Server, *exec.Cmd){
+func setup() (*Server, *exec.Cmd) {
 	addr, _ := url.Parse("http://:9090")
 	server := New(addr)
 	cmd := exec.Command("/Applications/VLC.app/Contents/MacOS/VLC", "/Users/rensux/Downloads/test.mkv", "--extraintf", "http", "--http-port", "9090", "--http-password", "q")
@@ -18,7 +18,9 @@ func setup() (*Server, *exec.Cmd){
 
 func TestServer_Connect(t *testing.T) {
 	server, cmd := setup()
-	if err := cmd.Start(); err != nil { panic(err) }
+	if err := cmd.Start(); err != nil {
+		panic(err)
+	}
 	defer cmd.Process.Kill()
 	server.Connect()
 }

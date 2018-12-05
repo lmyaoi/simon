@@ -7,8 +7,8 @@ import (
 )
 
 type Host struct {
-	client *http.Client
-	url *url.URL
+	client    *http.Client
+	url       *url.URL
 	unmarshal playback.StatusUnmarshaler
 }
 
@@ -17,7 +17,7 @@ func NewHost(url *url.URL, unmarshal playback.StatusUnmarshaler) *Host {
 }
 
 func (h *Host) Status() playback.Status {
-	res, err := h.client.Get(h.url.String()+"/status")
+	res, err := h.client.Get(h.url.String() + "/status")
 	if err != nil {
 		panic(err)
 	}
