@@ -5,6 +5,7 @@ import (
 	"time"
 	"vsync/flags"
 	"vsync/host"
+	"vsync/log"
 	"vsync/playback"
 	"vsync/ticker"
 )
@@ -28,8 +29,14 @@ func (c *Client) loop() {
 	for {
 		select {
 		case <-c.signal:
-			c.server.Status()
-			c.server.Sync(c.host.Status())
+			if _, err := c.server.Status(); err != nil {
+				log.Println(err)
+			}
+			if stat, err := c.host.Status(); err != nil {
+				log.Println(err)
+			} else if err := c.server.Sync(stat); err != nil {
+				log.Println(err)
+			}
 		}
 	}
 }

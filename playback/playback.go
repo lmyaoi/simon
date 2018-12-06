@@ -30,7 +30,7 @@ type Status interface {
 	Marshal() []byte
 }
 
-type StatusUnmarshaler func(io.Reader) Status
+type StatusUnmarshaler func(io.Reader) (Status, error)
 
 func Now(s Status) time.Time {
 	if s.State() == Paused {

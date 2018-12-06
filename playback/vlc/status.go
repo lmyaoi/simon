@@ -47,12 +47,12 @@ func (ms *marshalable) toS() *Status {
 	}
 }
 
-func Unmarshal(body io.Reader) playback.Status {
+func Unmarshal(body io.Reader) (playback.Status, error) {
 	ms := &marshalable{}
 	if err := json.NewDecoder(body).Decode(ms); err != nil {
-		panic(err)
+		return nil, err
 	}
-	return ms.toS()
+	return ms.toS(), nil
 }
 
 func (s *Status) Marshal() []byte {
