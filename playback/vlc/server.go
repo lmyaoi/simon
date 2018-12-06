@@ -56,7 +56,7 @@ func (vlc *Server) Connect() error {
 	req := vlc.newRequest(status)
 	res, err := vlc.client.Do(req)
 	for i := 0; i < 10 && err != nil; i++ {
-		log.Print("Failed to connect to playback server. Retrying...")
+		log.Println("Failed to connect to playback server. Retrying...")
 		time.Sleep(100 * time.Millisecond)
 		res, err = vlc.client.Do(req)
 	}
