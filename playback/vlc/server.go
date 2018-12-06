@@ -74,7 +74,7 @@ func (vlc *Server) SetState(s playback.State) error {
 	if err != nil {
 		return err
 	}
-	defer func () {
+	defer func() {
 		if _, err := vlc.Status(); err != nil {
 			log.Println(err)
 		}
