@@ -3,5 +3,5 @@ package host
 import "vsync/playback"
 
 type Host interface {
-	Status() playback.Status
+	Status() (playback.Status, error)
 }

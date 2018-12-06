@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	VLC_DEFAULT_WIN = `C:\Program Files\VideoLAN\VLC\vlc.exe`
-	VLC_DEFAULT_OSX = `/Applications/VLC.app`
+	VlcPathWin = `C:\Program Files\VideoLAN\VLC\vlc.exe`
+	VlcPathOSX = `/Applications/VLC.app`
 )
 
 var (
@@ -17,15 +17,15 @@ var (
 	HostPort = flag.Int("host-port", 8484, "The port on which the host listens.")
 	VlcPort  = flag.Int("vlc-port", 9090, "The port on which VLC listens.")
 	Host     = flag.Bool("host", false, "Set when host.")
-	vlcPath  = flag.String("vlc", "", "The path to the vlc executable.")
+	vlc      = flag.String("vlc-path", vlcPath(), "The path to the vlc executable.")
 )
 
-func vlcpath() string {
+func vlcPath() string {
 	switch runtime.GOOS {
 	case `windows`:
-		return VLC_DEFAULT_WIN
+		return VlcPathWin
 	case `darwin`:
-		return VLC_DEFAULT_OSX
+		return VlcPathOSX
 	default:
 		return ""
 	}
@@ -33,7 +33,7 @@ func vlcpath() string {
 
 func Vlc() string {
 	if runtime.GOOS == `darwin` {
-		return *vlcPath + `/Contents/MacOS/VLC`
+		return *vlc + `/Contents/MacOS/VLC`
 	}
-	return *vlcPath
+	return *vlc
 }
