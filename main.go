@@ -10,6 +10,7 @@ import (
 	"vsync/flags"
 	"vsync/host"
 	"vsync/local"
+	"vsync/log"
 	"vsync/playback"
 	"vsync/playback/vlc"
 	"vsync/remote"
@@ -25,8 +26,14 @@ func main() {
 	cmd := exec.Command(flags.Vlc(), vlcArgs...)
 	server := vlc.New(addr, cmd)
 
-	server.Connect()
-	defer cmd.Process.Kill()
+	if err := server.Connect(); err != nil {
+		log.Println(err)
+	}
+	defer func() {
+		if err := cmd.Process.Kill(); err != nil {
+			log.Println(err)
+		}
+	}()
 
 	var h host.Host
 	var client *local.Client

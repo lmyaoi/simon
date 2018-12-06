@@ -19,7 +19,7 @@ func NewHost(url *url.URL, unmarshal playback.StatusUnmarshaler) *Host {
 func (h *Host) Status() (playback.Status, error) {
 	res, err := h.client.Get(h.url.String() + "/status")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer res.Body.Close()
 	s, err := h.unmarshal(res.Body)
