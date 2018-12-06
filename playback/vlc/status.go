@@ -80,7 +80,10 @@ func (s *Status) Id() int {
 }
 
 func verify(s playback.Status) *Status {
-	t, _ := s.(*Status)
+	t, ok := s.(*Status)
+	if !ok {
+		panic("Unexpected playback.Status implementation. Expected vlc.Status.")
+	}
 	return t
 }
 

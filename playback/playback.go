@@ -6,10 +6,10 @@ import (
 )
 
 type Server interface {
-	Connect()             // connects to the playback server
-	SetState(state State) // sets playback state
-	Sync(Status)          // syncs playback
-	Status() Status       // request current playback status
+	Connect() error             // connects to the playback server
+	SetState(state State) error // sets playback state
+	Sync(Status) error          // syncs playback
+	Status() (Status, error)       // request current playback status
 	Last() Status         // request last requested playback status
 }
 
@@ -17,10 +17,10 @@ type Dummy int
 
 const D Dummy = 0
 
-func (Dummy) Connect()             {}             // connects to the playback server
-func (Dummy) SetState(state State) {}             // sets playback state
-func (Dummy) Sync(Status)          {}             // syncs playback
-func (Dummy) Status() Status       { return nil } // request current playback status
+func (Dummy) Connect() error             {return nil}             // connects to the playback server
+func (Dummy) SetState(state State) error {return nil}             // sets playback state
+func (Dummy) Sync(Status) error          {return nil}             // syncs playback
+func (Dummy) Status() (Status, error)       { return nil, nil } // request current playback status
 func (Dummy) Last() Status         { return nil } // request last requested playback status
 
 type Status interface {
@@ -46,7 +46,7 @@ func WorthSeeking(s1, s2 Status) bool {
 	if diff < 0 {
 		diff = -diff
 	}
-	return time.Duration(diff) >= 1*time.Second
+	return time.Duration(diff) >= 1 * time.Second
 }
 
 type State int
