@@ -8,55 +8,37 @@ import (
 )
 
 type Status struct {
-	state        playback.State
-	pos, created time.Time
-	id           int
+	*jsonStatus
+}
+
+type jsonStatus struct {
+	State        playback.State
+	Pos, Created time.Time
+	Id           int
 }
 
 func NewStatus(body io.Reader) *Status {
 	s := json2struct(body)
 	return &Status{
-		state:   string2state(s.State),
-		pos:     time.Unix(calcAccurateTime(s.Position, s.Length)),
-		created: time.Now(),
-		id:      s.Currentplid,
-	}
-}
-
-type marshalable struct {
-	State        int
-	Pos, Created int64
-	Id           int
-}
-
-func (s *Status) toMarshalable() *marshalable {
-	return &marshalable{
-		State:   int(s.state),
-		Pos:     s.pos.UnixNano(),
-		Created: s.created.UnixNano(),
-		Id:      s.id,
-	}
-}
-
-func (ms *marshalable) toStatus() *Status {
-	return &Status{
-		state:   playback.State(ms.State),
-		pos:     time.Unix(0, ms.Pos),
-		created: time.Unix(0, ms.Created),
-		id:      ms.Id,
+		&jsonStatus{
+			State:   string2state(s.State),
+			Pos:     time.Unix(calcAccurateTime(s.Position, s.Length)),
+			Created: time.Now(),
+			Id:      s.Currentplid,
+		},
 	}
 }
 
 func Unmarshal(body io.Reader) (playback.Status, error) {
-	ms := &marshalable{}
-	if err := json.NewDecoder(body).Decode(ms); err != nil {
+	js := &jsonStatus{}
+	if err := json.NewDecoder(body).Decode(js); err != nil {
 		return nil, err
 	}
-	return ms.toStatus(), nil
+	return &Status{js}, nil
 }
 
 func (s *Status) Marshal() []byte {
-	data, err := json.Marshal(s.toMarshalable())
+	data, err := json.Marshal(s.jsonStatus)
 	if err != nil {
 		panic(err)
 	}
@@ -64,19 +46,19 @@ func (s *Status) Marshal() []byte {
 }
 
 func (s *Status) State() playback.State {
-	return s.state
+	return s.jsonStatus.State
 }
 
 func (s *Status) Pos() time.Time {
-	return s.pos
+	return s.jsonStatus.Pos
 }
 
 func (s *Status) Created() time.Time {
-	return s.created
+	return s.jsonStatus.Created
 }
 
 func (s *Status) Id() int {
-	return s.id
+	return s.jsonStatus.Id
 }
 
 func verify(s playback.Status) *Status {

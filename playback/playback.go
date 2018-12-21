@@ -1,6 +1,7 @@
 package playback
 
 import (
+	"encoding/json"
 	"io"
 	"time"
 )
@@ -57,3 +58,16 @@ const (
 	Playing
 	Paused
 )
+
+func (s State) MarshalJSON() ([]byte, error) {
+	return json.Marshal(int(s))
+}
+
+func (s *State) UnmarshalJSON(data []byte) error {
+	var i int
+	if err := json.Unmarshal(data, &i); err != nil {
+		return err
+	}
+	*s = State(i)
+	return nil
+}
