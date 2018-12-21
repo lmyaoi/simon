@@ -108,11 +108,11 @@ func json2struct(r io.Reader) *struct {
 
 func string2state(str string) playback.State {
 	switch str {
-	case "stopped":
+	case playback.Stopped.String():
 		return playback.Stopped
-	case "playing":
+	case playback.Playing.String():
 		return playback.Playing
-	case "paused":
+	case playback.Paused.String():
 		return playback.Paused
 	default:
 		panic("Impossible state string")
