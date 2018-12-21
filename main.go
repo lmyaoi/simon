@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strconv"
 	"sync"
+	"time"
 	"vsync/flags"
 	"vsync/host"
 	"vsync/local"
@@ -17,6 +18,12 @@ import (
 )
 
 func main() {
+	t := time.Unix(5, 8000)
+	b, _ := t.MarshalJSON()
+	fmt.Printf("%q\n", b)
+	return
+
+
 	flag.Parse()
 	wg := &sync.WaitGroup{}
 
