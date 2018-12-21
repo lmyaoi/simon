@@ -25,7 +25,7 @@ func (dummy) Last() Status               { return nil }      // request last req
 
 type Status interface {
 	State() State
-	Pos() time.Time
+	Pos() time.Time // Must return the current (not at time of creation) position of the playback
 	Created() time.Time
 	Marshal() []byte
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/url"
 	"os/exec"
 	"strconv"
@@ -10,7 +11,6 @@ import (
 	"vsync/flags"
 	"vsync/host"
 	"vsync/local"
-	"vsync/log"
 	"vsync/playback"
 	"vsync/playback/vlc"
 	"vsync/remote"
@@ -25,13 +25,16 @@ func main() {
 	vlcArgs := []string{"--extraintf", "http", "--http-port", strconv.Itoa(*flags.VlcPort), "--http-password", "q"}
 	cmd := exec.Command(flags.Vlc(), vlcArgs...)
 	server := vlc.New(addr, cmd)
+	if err := cmd.Start(); err != nil {
+		log.Fatalln(err)
+	}
 
 	if err := server.Connect(); err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 	defer func() {
 		if err := cmd.Process.Kill(); err != nil {
-			log.Println(err)
+			log.Fatalln(err)
 		}
 	}()
 

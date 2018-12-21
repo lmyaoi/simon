@@ -48,26 +48,13 @@ func New(addr *url.URL, cmd *exec.Cmd) *Server {
 }
 
 func (vlc *Server) Connect() error {
-	if err := vlc.cmd.Start(); err != nil {
-		return err
-	}
-
 	req := newRequest(vlc, status)
-	res, err := vlc.retry(req, 10)
+	res, err := httputil.Retry(vlc.client, req, 10)
 	if err != nil {
 		return err
 	}
 	vlc.last = NewStatus(res.Body)
 	return nil
-}
-
-func (vlc *Server) retry(req *http.Request, retries int) (res *http.Response, err error) {
-	for i := 0; i < 1 + retries; i++ {
-		res, err = vlc.client.Do(req)
-		if err == nil { return }
-		time.Sleep(100 * time.Millisecond)
-	}
-	return
 }
 
 func (vlc *Server) SetState(s playback.State) error {
@@ -123,7 +110,7 @@ func (vlc *Server) jump(id int) {
 }
 
 func (vlc *Server) Status() (playback.Status, error) {
-	if time.Now().Sub(vlc.last.created) < time.Second {
+	if !vlc.staleLast() {
 		return vlc.last, nil
 	}
 
@@ -136,6 +123,10 @@ func (vlc *Server) Status() (playback.Status, error) {
 
 	vlc.last = NewStatus(res.Body)
 	return vlc.last, nil
+}
+
+func (vlc *Server) staleLast() bool {
+	return time.Now().Sub(vlc.last.created) > time.Second
 }
 
 func (vlc *Server) Last() playback.Status {
