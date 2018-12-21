@@ -11,6 +11,8 @@ import (
 
 var defaultPreference = Preference{ &jsonFormat{"1", jsonutil.Duration{1*time.Second}, flags.VlcDefault(), make([]string, 0)}}
 
+const name = ".vsync_preferences"
+
 type Preference struct {
 	*jsonFormat
 }
@@ -56,7 +58,7 @@ func parseFile(f *os.File) (*Preference, error) {
 }
 
 func getFile() (*os.File, error) {
-	path := os.Getenv("HOME") + "/.vsync_pref.json"
+	path := os.Getenv("HOME") + "/" + name
 	f, err := os.Open(path)
 	if err == nil {
 		return f, nil
