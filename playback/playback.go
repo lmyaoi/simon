@@ -25,7 +25,7 @@ func (dummy) Last() Status               { return nil }      // request last req
 
 type Status interface {
 	State() State
-	Pos() time.Time // Must return the current (not at time of creation) position of the playback
+	Pos() time.Time
 	Created() time.Time
 	Marshal() []byte
 }
@@ -49,7 +49,7 @@ func WorthSeeking(s1, s2 Status) bool {
 	return time.Duration(diff) >= 1*time.Second
 }
 
-//go:generate stringer -type=State
+//go:genera	te stringer -type=State
 type State int
 
 const (
