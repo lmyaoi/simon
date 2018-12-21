@@ -7,6 +7,7 @@ import (
 	"vsync/playback"
 )
 
+//go:generate stringer -type=Signal
 type Signal int
 
 const (

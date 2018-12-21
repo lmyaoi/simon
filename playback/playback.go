@@ -13,15 +13,15 @@ type Server interface {
 	Last() Status               // request last requested playback status
 }
 
-type Dummy int
+type dummy int
 
-const D Dummy = 0
+const Dummy dummy = 0
 
-func (Dummy) Connect() error             { return nil }      // connects to the playback server
-func (Dummy) SetState(state State) error { return nil }      // sets playback state
-func (Dummy) Sync(Status) error          { return nil }      // syncs playback
-func (Dummy) Status() (Status, error)    { return nil, nil } // request current playback status
-func (Dummy) Last() Status               { return nil }      // request last requested playback status
+func (dummy) Connect() error             { return nil }      // connects to the playback server
+func (dummy) SetState(state State) error { return nil }      // sets playback state
+func (dummy) Sync(Status) error          { return nil }      // syncs playback
+func (dummy) Status() (Status, error)    { return nil, nil } // request current playback status
+func (dummy) Last() Status               { return nil }      // request last requested playback status
 
 type Status interface {
 	State() State
@@ -49,6 +49,7 @@ func WorthSeeking(s1, s2 Status) bool {
 	return time.Duration(diff) >= 1*time.Second
 }
 
+//go:generate stringer -type=State
 type State int
 
 const (

@@ -29,7 +29,7 @@ type marshalable struct {
 	Id           int
 }
 
-func (s *Status) toMS() *marshalable {
+func (s *Status) toMarshalable() *marshalable {
 	return &marshalable{
 		State:   int(s.state),
 		Pos:     s.pos.UnixNano(),
@@ -38,7 +38,7 @@ func (s *Status) toMS() *marshalable {
 	}
 }
 
-func (ms *marshalable) toS() *Status {
+func (ms *marshalable) toStatus() *Status {
 	return &Status{
 		state:   playback.State(ms.State),
 		pos:     time.Unix(0, ms.Pos),
@@ -52,11 +52,11 @@ func Unmarshal(body io.Reader) (playback.Status, error) {
 	if err := json.NewDecoder(body).Decode(ms); err != nil {
 		return nil, err
 	}
-	return ms.toS(), nil
+	return ms.toStatus(), nil
 }
 
 func (s *Status) Marshal() []byte {
-	data, err := json.Marshal(s.toMS())
+	data, err := json.Marshal(s.toMarshalable())
 	if err != nil {
 		panic(err)
 	}

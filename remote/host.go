@@ -3,6 +3,7 @@ package remote
 import (
 	"net/http"
 	"net/url"
+	"time"
 	"vsync/playback"
 )
 
@@ -13,7 +14,7 @@ type Host struct {
 }
 
 func NewHost(url *url.URL, unmarshal playback.StatusUnmarshaler) *Host {
-	return &Host{&http.Client{}, url, unmarshal}
+	return &Host{&http.Client{Timeout: 10 * time.Second}, url, unmarshal}
 }
 
 func (h *Host) Status() (playback.Status, error) {

@@ -39,7 +39,7 @@ func main() {
 	var client *local.Client
 	if *flags.Host {
 		h = local.NewHost(server)
-		client = local.NewClient(playback.D, h, wg)
+		client = local.NewClient(playback.Dummy, h, wg)
 	} else {
 		hostAddr, _ := url.Parse(fmt.Sprintf("http://%v:%v", *flags.HostUrl, *flags.HostPort))
 		h = remote.NewHost(hostAddr, vlc.Unmarshal)

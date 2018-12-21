@@ -13,7 +13,6 @@ import (
 
 var (
 	status = "/requests/status.json"
-	//playlist = "/requests/playlist.json"
 	play  = status + "?command=pl_forceresume"
 	pause = status + "?command=pl_forcepause"
 	stop  = status + "?command=pl_stop"
@@ -54,22 +53,25 @@ func (vlc *Server) Connect() error {
 	}
 
 	req := vlc.newRequest(status)
-	res, err := vlc.client.Do(req)
-	for i := 0; i < 10 && err != nil; i++ {
-		log.Println("Failed to connect to playback server. Retrying...")
-		time.Sleep(100 * time.Millisecond)
-		res, err = vlc.client.Do(req)
-	}
+	res, err := vlc.retry(req, 10)
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
 	vlc.last = NewStatus(res.Body)
 	return nil
 }
 
+func (vlc *Server) retry(req *http.Request, retries int) (res *http.Response, err error) {
+	for i := 0; i < 1 + retries; i++ {
+		res, err = vlc.client.Do(req)
+		if err == nil { return }
+		time.Sleep(100 * time.Millisecond)
+	}
+	return
+}
+
 func (vlc *Server) SetState(s playback.State) error {
-	req := vlc.newRequest(getStatePath(s))
+	req := vlc.newRequest(s.String())
 	res, err := vlc.client.Do(req)
 	if err != nil {
 		return err
@@ -82,19 +84,6 @@ func (vlc *Server) SetState(s playback.State) error {
 	defer res.Body.Close()
 	defer ioutil.ReadAll(res.Body)
 	return nil
-}
-
-func getStatePath(s playback.State) string {
-	switch s {
-	case playback.Stopped:
-		return stop
-	case playback.Playing:
-		return play
-	case playback.Paused:
-		return pause
-	default:
-		panic("Unsupported playback state.")
-	}
 }
 
 func (vlc *Server) Start() error {
@@ -111,7 +100,7 @@ func (vlc *Server) Stop() error {
 
 func (vlc *Server) Sync(stat playback.Status) error {
 	s := verify(stat)
-	//if vlc.last.id != s.id { vlc.jump(s.id) } todo: handle playlists
+	// todo: handle playlists
 
 	if vlc.last.state != s.state {
 		if err := vlc.SetState(s.state); err != nil {
@@ -126,22 +115,12 @@ func (vlc *Server) Sync(stat playback.Status) error {
 
 func (vlc *Server) seek(s int64) {
 	req := vlc.newRequest(seek(s))
-	res, err := vlc.client.Do(req)
-	if err != nil {
-		return
-	}
-	defer res.Body.Close()
-	defer ioutil.ReadAll(res.Body)
+	discard(vlc.client.Do(req))
 }
 
 func (vlc *Server) jump(id int) {
 	req := vlc.newRequest(jump(id))
-	res, err := vlc.client.Do(req)
-	if err != nil {
-		return
-	}
-	defer res.Body.Close()
-	defer ioutil.ReadAll(res.Body)
+	discard(vlc.client.Do(req))
 }
 
 func (vlc *Server) Status() (playback.Status, error) {
@@ -154,7 +133,7 @@ func (vlc *Server) Status() (playback.Status, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer discard(res, err)
 
 	vlc.last = NewStatus(res.Body)
 	return vlc.last, nil
@@ -162,4 +141,13 @@ func (vlc *Server) Status() (playback.Status, error) {
 
 func (vlc *Server) Last() playback.Status {
 	return vlc.last
+}
+
+func discard(res *http.Response, err error) {
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer res.Body.Close()
+	defer ioutil.ReadAll(res.Body)
 }
