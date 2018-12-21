@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+	"vsync/httputil"
 	"vsync/playback"
 )
 
@@ -22,7 +23,7 @@ func (h *Host) Status() (playback.Status, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer httputil.Discard(res, err)
 	s, err := h.unmarshal(res.Body)
 	if err != nil {
 		return nil, err

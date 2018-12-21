@@ -2,11 +2,11 @@ package vlc
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os/exec"
 	"time"
+	"vsync/httputil"
 	"vsync/log"
 	"vsync/playback"
 )
@@ -76,7 +76,7 @@ func (vlc *Server) SetState(s playback.State) error {
 	if err != nil {
 		return err
 	}
-	defer discard(res, err)
+	defer httputil.Discard(res, err)
 	defer func() {
 		if _, err := vlc.Status(); err != nil {
 			log.Println(err)
@@ -114,12 +114,12 @@ func (vlc *Server) Sync(stat playback.Status) error {
 
 func (vlc *Server) seek(s int64) {
 	req := newRequest(vlc, seek(s))
-	discard(vlc.client.Do(req))
+	httputil.Discard(vlc.client.Do(req))
 }
 
 func (vlc *Server) jump(id int) {
 	req := newRequest(vlc, jump(id))
-	discard(vlc.client.Do(req))
+	httputil.Discard(vlc.client.Do(req))
 }
 
 func (vlc *Server) Status() (playback.Status, error) {
@@ -132,7 +132,7 @@ func (vlc *Server) Status() (playback.Status, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer discard(res, err)
+	defer httputil.Discard(res, err)
 
 	vlc.last = NewStatus(res.Body)
 	return vlc.last, nil
@@ -140,13 +140,4 @@ func (vlc *Server) Status() (playback.Status, error) {
 
 func (vlc *Server) Last() playback.Status {
 	return vlc.last
-}
-
-func discard(res *http.Response, err error) {
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	defer res.Body.Close()
-	defer ioutil.ReadAll(res.Body)
 }
