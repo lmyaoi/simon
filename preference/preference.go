@@ -9,7 +9,7 @@ import (
 	"vsync/jsonutil"
 )
 
-var defaultPreference = Preference{ &jsonFormat{"1", jsonutil.Duration{1*time.Second}, flags.VlcDefault(), make([]string, 0)}}
+var defaultPreference = Preference{&jsonFormat{"1", jsonutil.Duration{1 * time.Second}, flags.VlcDefault(), make([]string, 0)}}
 
 const name = ".vsync_preferences"
 
@@ -30,10 +30,10 @@ func (p *Preference) Hosts() []string {
 }
 
 type jsonFormat struct {
-	Ver string
+	Ver      string
 	Interval jsonutil.Duration
-	VlcPath string
-	Hosts []string
+	VlcPath  string
+	Hosts    []string
 }
 
 func Get() (*Preference, error) {
@@ -78,6 +78,6 @@ func createFile(path string) (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	_,_ = f.Seek(0,0) // seek back to start of file
+	_, _ = f.Seek(0, 0) // seek back to start of file
 	return f, nil
 }
