@@ -76,5 +76,6 @@ func createFile(path string) (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
+	_,_ = f.Seek(0,0) // seek back to start of file
 	return f, nil
 }
