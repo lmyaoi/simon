@@ -28,7 +28,7 @@ type Server struct {
 	cmd                *exec.Cmd
 }
 
-func (vlc *Server) newRequest(path string) *http.Request {
+func newRequest(vlc *Server, path string) *http.Request {
 	req, err := http.NewRequest("GET", vlc.addr.String()+path, nil)
 	if err != nil {
 		panic(err)
@@ -52,7 +52,7 @@ func (vlc *Server) Connect() error {
 		return err
 	}
 
-	req := vlc.newRequest(status)
+	req := newRequest(vlc, status)
 	res, err := vlc.retry(req, 10)
 	if err != nil {
 		return err
@@ -71,18 +71,17 @@ func (vlc *Server) retry(req *http.Request, retries int) (res *http.Response, er
 }
 
 func (vlc *Server) SetState(s playback.State) error {
-	req := vlc.newRequest(s.String())
+	req := newRequest(vlc, s.String())
 	res, err := vlc.client.Do(req)
 	if err != nil {
 		return err
 	}
+	defer discard(res, err)
 	defer func() {
 		if _, err := vlc.Status(); err != nil {
 			log.Println(err)
 		}
 	}()
-	defer res.Body.Close()
-	defer ioutil.ReadAll(res.Body)
 	return nil
 }
 
@@ -114,12 +113,12 @@ func (vlc *Server) Sync(stat playback.Status) error {
 }
 
 func (vlc *Server) seek(s int64) {
-	req := vlc.newRequest(seek(s))
+	req := newRequest(vlc, seek(s))
 	discard(vlc.client.Do(req))
 }
 
 func (vlc *Server) jump(id int) {
-	req := vlc.newRequest(jump(id))
+	req := newRequest(vlc, jump(id))
 	discard(vlc.client.Do(req))
 }
 
@@ -128,7 +127,7 @@ func (vlc *Server) Status() (playback.Status, error) {
 		return vlc.last, nil
 	}
 
-	req := vlc.newRequest(status)
+	req := newRequest(vlc, status)
 	res, err := vlc.client.Do(req)
 	if err != nil {
 		return nil, err
