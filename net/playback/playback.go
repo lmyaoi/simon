@@ -34,23 +34,25 @@ type Status interface {
 type StatusUnmarshaler func(io.Reader) (Status, error)
 
 func Now(s Status) time.Time {
-	if s.State() == Paused {
+	switch s.State() {
+	case Paused:
 		return s.Pos()
-	} else if s.State() == Playing {
-		return s.Pos().Add(time.Now().Sub(s.Created()))
+	case Playing:
+		return s.Pos().Add(time.Since(s.Created()))
+	default:
+		return time.Unix(0, 0)
 	}
-	return time.Time{}
 }
 
 func WorthSeeking(s1, s2 Status) bool {
-	diff := Now(s1).UnixNano() - Now(s2).UnixNano()
+	diff := Now(s1).Sub(Now(s2)).Round(time.Second)
 	if diff < 0 {
 		diff = -diff
 	}
-	return time.Duration(diff) >= 1*time.Second
+	return diff > time.Second
 }
 
-//go:genera	te stringer -type=State
+//go:generate stringer -type=State
 type State int
 
 const (

@@ -1,10 +1,11 @@
 package local
 
 import (
+	"fmt"
 	"net/http"
-	"vsync/consts"
-	"vsync/net/local/request"
+	"vsync/flags"
 	"vsync/net/playback"
+	"vsync/net/request"
 )
 
 //go:generate stringer -type=Signal
@@ -40,5 +41,6 @@ func NewHost(playback playback.Server) *Host {
 func newServer(handler *request.Handler) *http.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status", handler.Status())
-	return &http.Server{Addr: consts.HostAddr, Handler: mux}
+	addr := fmt.Sprintf("%v:%v", *flags.HostUrl, *flags.HostPort)
+	return &http.Server{Addr: addr, Handler: mux}
 }

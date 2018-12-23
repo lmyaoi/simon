@@ -22,7 +22,7 @@ func NewStatus(body io.Reader) *Status {
 	return &Status{
 		&jsonStatus{
 			State:   parseState(s.State),
-			Pos:     time.Unix(calcAccurateTime(s.Position, s.Length)),
+			Pos:     calcAccurateTime(s.Position, s.Length),
 			Created: time.Now(),
 			Id:      s.Currentplid,
 		},
@@ -69,18 +69,16 @@ func verify(s playback.Status) *Status {
 	return t
 }
 
-func parseJSON(r io.Reader) *struct {
-	Length      int64
-	Position    float64
-	State       string
-	Currentplid int
-} {
-	s := &struct {
-		Length      int64
-		Position    float64
-		State       string
-		Currentplid int
-	}{}
+type vlcStatus struct {
+Length      int64
+Position    float64
+Time int64
+State       string
+Currentplid int
+}
+
+func parseJSON(r io.Reader) *vlcStatus {
+	s := &vlcStatus{}
 	err := json.NewDecoder(r).Decode(s)
 	if err != nil {
 		panic(err)
@@ -101,9 +99,7 @@ func parseState(str string) playback.State {
 	}
 }
 
-func calcAccurateTime(p float64, length int64) (int64, int64) {
-	t := float64(length) * p
-	s := int64(t)
-	ns := int64((t - float64(s)) * float64(time.Second))
-	return s, ns
+func calcAccurateTime(p float64, length int64) time.Time {
+	t := float64(length) * p * float64(time.Second) // nanosecond time passed
+	return time.Unix(0, int64(t)).Round(time.Second) // conversion to time rounded to second
 }
