@@ -6,9 +6,9 @@ import (
 	"net/url"
 	"os/exec"
 	"time"
-	"vsync/httputil"
+	"vsync/net/httputil"
 	"vsync/log"
-	"vsync/playback"
+	"vsync/net/playback"
 )
 
 var (
@@ -39,10 +39,12 @@ func newRequest(vlc *Server, path string) *http.Request {
 
 func New(addr *url.URL, cmd *exec.Cmd) *Server {
 	stat := &Status{
-		state:   playback.Stopped,
-		pos:     time.Unix(0, 0),
-		created: time.Now(),
-		id:      -1,
+		&jsonStatus{
+			State:   playback.Stopped,
+			Pos:     time.Unix(0, 0),
+			Created: time.Now(),
+			Id:      -1,
+		},
 	}
 	return &Server{addr: addr, client: &http.Client{}, last: stat, username: "", password: "q", cmd: cmd}
 }
@@ -88,8 +90,8 @@ func (vlc *Server) Sync(stat playback.Status) error {
 	s := verify(stat)
 	// todo: handle playlists
 
-	if vlc.last.state != s.state {
-		if err := vlc.SetState(s.state); err != nil {
+	if vlc.last.State() != s.State() {
+		if err := vlc.SetState(s.State()); err != nil {
 			return err
 		}
 		vlc.seek(playback.Now(s).Unix())
@@ -126,7 +128,7 @@ func (vlc *Server) Status() (playback.Status, error) {
 }
 
 func (vlc *Server) staleLast() bool {
-	return time.Now().Sub(vlc.last.created) > time.Second
+	return time.Now().Sub(vlc.last.Created()) > time.Second
 }
 
 func (vlc *Server) Last() playback.Status {

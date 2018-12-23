@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"time"
-	"vsync/playback"
+	"vsync/net/playback"
 )
 
 type Status struct {
@@ -18,10 +18,10 @@ type jsonStatus struct {
 }
 
 func NewStatus(body io.Reader) *Status {
-	s := json2struct(body)
+	s := parseJSON(body)
 	return &Status{
 		&jsonStatus{
-			State:   string2state(s.State),
+			State:   parseState(s.State),
 			Pos:     time.Unix(calcAccurateTime(s.Position, s.Length)),
 			Created: time.Now(),
 			Id:      s.Currentplid,
@@ -69,7 +69,7 @@ func verify(s playback.Status) *Status {
 	return t
 }
 
-func json2struct(r io.Reader) *struct {
+func parseJSON(r io.Reader) *struct {
 	Length      int64
 	Position    float64
 	State       string
@@ -88,16 +88,16 @@ func json2struct(r io.Reader) *struct {
 	return s
 }
 
-func string2state(str string) playback.State {
+func parseState(str string) playback.State {
 	switch str {
-	case playback.Stopped.String():
+	case "stopped":
 		return playback.Stopped
-	case playback.Playing.String():
+	case "playing":
 		return playback.Playing
-	case playback.Paused.String():
+	case "paused":
 		return playback.Paused
 	default:
-		panic("Impossible state string")
+		panic("Impossible state string: " + str)
 	}
 }
 

@@ -1,6 +1,6 @@
-package host
+package net
 
-import "vsync/playback"
+import "vsync/net/playback"
 
 type Host interface {
 	Status() (playback.Status, error)

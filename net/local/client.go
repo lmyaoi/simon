@@ -4,21 +4,21 @@ import (
 	"sync"
 	"time"
 	"vsync/flags"
-	"vsync/host"
+	"vsync/net"
 	"vsync/log"
-	"vsync/playback"
+	"vsync/net/playback"
 	"vsync/ticker"
 )
 
 type Client struct {
 	server  playback.Server
-	host    host.Host
+	host    net.Host
 	control chan<- ticker.Signal
 	signal  <-chan time.Time
 	wg      *sync.WaitGroup
 }
 
-func NewClient(s playback.Server, h host.Host, wg *sync.WaitGroup) *Client {
+func NewClient(s playback.Server, h net.Host, wg *sync.WaitGroup) *Client {
 	c := &Client{server: s, host: h, wg: wg}
 	c.signal, c.control = ticker.New(*flags.Interval)
 	go c.loop()

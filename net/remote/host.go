@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
-	"vsync/httputil"
-	"vsync/playback"
+	"vsync/net/httputil"
+	"vsync/net/playback"
 )
 
 type Host struct {

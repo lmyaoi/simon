@@ -9,11 +9,11 @@ import (
 	"strconv"
 	"sync"
 	"vsync/flags"
-	"vsync/host"
-	"vsync/local"
-	"vsync/playback"
-	"vsync/playback/vlc"
-	"vsync/remote"
+	"vsync/net"
+	"vsync/net/local"
+	"vsync/net/playback"
+	"vsync/net/playback/vlc"
+	"vsync/net/remote"
 )
 
 func main() {
@@ -38,7 +38,7 @@ func main() {
 		}
 	}()
 
-	var h host.Host
+	var h net.Host
 	var client *local.Client
 	if *flags.Host {
 		h = local.NewHost(server)
