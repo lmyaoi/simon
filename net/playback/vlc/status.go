@@ -70,11 +70,11 @@ func verify(s playback.Status) *Status {
 }
 
 type vlcStatus struct {
-Length      int64
-Position    float64
-Time int64
-State       string
-Currentplid int
+	Length      int64
+	Position    float64
+	Time        int64
+	State       string
+	Currentplid int
 }
 
 func parseJSON(r io.Reader) *vlcStatus {
@@ -100,6 +100,6 @@ func parseState(str string) playback.State {
 }
 
 func calcAccurateTime(p float64, length int64) time.Time {
-	t := float64(length) * p * float64(time.Second) // nanosecond time passed
+	t := float64(length) * p * float64(time.Second)  // nanosecond time passed
 	return time.Unix(0, int64(t)).Round(time.Second) // conversion to time rounded to second
 }

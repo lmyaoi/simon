@@ -6,18 +6,18 @@ import (
 	"net/url"
 	"os/exec"
 	"time"
-	"vsync/net/httputil"
 	"vsync/log"
+	"vsync/net/httputil"
 	"vsync/net/playback"
 )
 
 var (
 	status = "/requests/status.json"
-	play  = status + "?command=pl_forceresume"
-	pause = status + "?command=pl_forcepause"
-	stop  = status + "?command=pl_stop"
-	jump  = func(id int) string { return fmt.Sprintf(status+"?command=pl_play&id=%v", id) }
-	seek  = func(pos int64) string { return fmt.Sprintf(status+"?command=seek&val=%v", pos) }
+	play   = status + "?command=pl_forceresume"
+	pause  = status + "?command=pl_forcepause"
+	stop   = status + "?command=pl_stop"
+	jump   = func(id int) string { return fmt.Sprintf(status+"?command=pl_play&id=%v", id) }
+	seek   = func(pos int64) string { return fmt.Sprintf(status+"?command=seek&val=%v", pos) }
 )
 
 type Server struct {
@@ -59,12 +59,14 @@ func (vlc *Server) Connect() error {
 	return nil
 }
 
-
 func commandify(state playback.State) string {
 	switch state {
-	case playback.Playing: return play
-	case playback.Paused: return pause
-	case playback.Stopped: return stop
+	case playback.Playing:
+		return play
+	case playback.Paused:
+		return pause
+	case playback.Stopped:
+		return stop
 	default:
 		panic("Unsupported state")
 	}

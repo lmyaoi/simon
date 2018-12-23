@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 	"vsync/flags"
-	"vsync/net"
 	"vsync/log"
+	"vsync/net"
 	"vsync/net/playback"
 	"vsync/ticker"
 )
