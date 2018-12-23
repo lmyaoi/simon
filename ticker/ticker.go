@@ -2,6 +2,7 @@ package ticker
 
 import "time"
 
+//go:generate stringer -type=Signal
 type Signal int
 
 const (

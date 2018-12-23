@@ -2,23 +2,22 @@ package vlc
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os/exec"
 	"time"
 	"vsync/log"
-	"vsync/playback"
+	"vsync/net/httputil"
+	"vsync/net/playback"
 )
 
 var (
 	status = "/requests/status.json"
-	//playlist = "/requests/playlist.json"
-	play  = status + "?command=pl_forceresume"
-	pause = status + "?command=pl_forcepause"
-	stop  = status + "?command=pl_stop"
-	jump  = func(id int) string { return fmt.Sprintf(status+"?command=pl_play&id=%v", id) }
-	seek  = func(pos int64) string { return fmt.Sprintf(status+"?command=seek&val=%v", pos) }
+	play   = status + "?command=pl_forceresume"
+	pause  = status + "?command=pl_forcepause"
+	stop   = status + "?command=pl_stop"
+	jump   = func(id int) string { return fmt.Sprintf(status+"?command=pl_play&id=%v", id) }
+	seek   = func(pos int64) string { return fmt.Sprintf(status+"?command=seek&val=%v", pos) }
 )
 
 type Server struct {
@@ -29,7 +28,7 @@ type Server struct {
 	cmd                *exec.Cmd
 }
 
-func (vlc *Server) newRequest(path string) *http.Request {
+func newRequest(vlc *Server, path string) *http.Request {
 	req, err := http.NewRequest("GET", vlc.addr.String()+path, nil)
 	if err != nil {
 		panic(err)
@@ -40,61 +39,52 @@ func (vlc *Server) newRequest(path string) *http.Request {
 
 func New(addr *url.URL, cmd *exec.Cmd) *Server {
 	stat := &Status{
-		state:   playback.Stopped,
-		pos:     time.Unix(0, 0),
-		created: time.Now(),
-		id:      -1,
+		&jsonStatus{
+			State:   playback.Stopped,
+			Pos:     time.Unix(0, 0),
+			Created: time.Now(),
+			Id:      -1,
+		},
 	}
 	return &Server{addr: addr, client: &http.Client{}, last: stat, username: "", password: "q", cmd: cmd}
 }
 
 func (vlc *Server) Connect() error {
-	if err := vlc.cmd.Start(); err != nil {
-		return err
-	}
-
-	req := vlc.newRequest(status)
-	res, err := vlc.client.Do(req)
-	for i := 0; i < 10 && err != nil; i++ {
-		log.Println("Failed to connect to playback server. Retrying...")
-		time.Sleep(100 * time.Millisecond)
-		res, err = vlc.client.Do(req)
-	}
+	req := newRequest(vlc, status)
+	res, err := httputil.Retry(vlc.client, req, 10)
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
 	vlc.last = NewStatus(res.Body)
 	return nil
 }
 
+func commandify(state playback.State) string {
+	switch state {
+	case playback.Playing:
+		return play
+	case playback.Paused:
+		return pause
+	case playback.Stopped:
+		return stop
+	default:
+		panic("Unsupported state")
+	}
+}
+
 func (vlc *Server) SetState(s playback.State) error {
-	req := vlc.newRequest(getStatePath(s))
+	req := newRequest(vlc, commandify(s))
 	res, err := vlc.client.Do(req)
 	if err != nil {
 		return err
 	}
+	defer httputil.Discard(res, err)
 	defer func() {
 		if _, err := vlc.Status(); err != nil {
 			log.Println(err)
 		}
 	}()
-	defer res.Body.Close()
-	defer ioutil.ReadAll(res.Body)
 	return nil
-}
-
-func getStatePath(s playback.State) string {
-	switch s {
-	case playback.Stopped:
-		return stop
-	case playback.Playing:
-		return play
-	case playback.Paused:
-		return pause
-	default:
-		panic("Unsupported playback state.")
-	}
 }
 
 func (vlc *Server) Start() error {
@@ -111,10 +101,10 @@ func (vlc *Server) Stop() error {
 
 func (vlc *Server) Sync(stat playback.Status) error {
 	s := verify(stat)
-	//if vlc.last.id != s.id { vlc.jump(s.id) } todo: handle playlists
+	// todo: handle playlists
 
-	if vlc.last.state != s.state {
-		if err := vlc.SetState(s.state); err != nil {
+	if vlc.last.State() != s.State() {
+		if err := vlc.SetState(s.State()); err != nil {
 			return err
 		}
 		vlc.seek(playback.Now(s).Unix())
@@ -125,39 +115,33 @@ func (vlc *Server) Sync(stat playback.Status) error {
 }
 
 func (vlc *Server) seek(s int64) {
-	req := vlc.newRequest(seek(s))
-	res, err := vlc.client.Do(req)
-	if err != nil {
-		return
-	}
-	defer res.Body.Close()
-	defer ioutil.ReadAll(res.Body)
+	req := newRequest(vlc, seek(s))
+	httputil.Discard(vlc.client.Do(req))
 }
 
 func (vlc *Server) jump(id int) {
-	req := vlc.newRequest(jump(id))
-	res, err := vlc.client.Do(req)
-	if err != nil {
-		return
-	}
-	defer res.Body.Close()
-	defer ioutil.ReadAll(res.Body)
+	req := newRequest(vlc, jump(id))
+	httputil.Discard(vlc.client.Do(req))
 }
 
 func (vlc *Server) Status() (playback.Status, error) {
-	if time.Now().Sub(vlc.last.created) < time.Second {
+	if !vlc.staleLast() {
 		return vlc.last, nil
 	}
 
-	req := vlc.newRequest(status)
+	req := newRequest(vlc, status)
 	res, err := vlc.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer httputil.Discard(res, err)
 
 	vlc.last = NewStatus(res.Body)
 	return vlc.last, nil
+}
+
+func (vlc *Server) staleLast() bool {
+	return time.Now().Sub(vlc.last.Created()) > time.Second
 }
 
 func (vlc *Server) Last() playback.Status {

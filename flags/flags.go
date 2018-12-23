@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	Interval = flag.Duration("i", 1*time.Second, "The interval at which to poll.")
+	Interval = flag.Duration("i", time.Second, "The interval at which to poll.")
 	HostUrl  = flag.String("host-url", "localhost", "The url/ip of the host.")
 	HostPort = flag.Int("host-port", 8484, "The port on which the host listens.")
 	VlcPort  = flag.Int("vlc-port", 9090, "The port on which VLC listens.")
