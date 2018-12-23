@@ -59,8 +59,19 @@ func (vlc *Server) Connect() error {
 	return nil
 }
 
+
+func commandify(state playback.State) string {
+	switch state {
+	case playback.Playing: return play
+	case playback.Paused: return pause
+	case playback.Stopped: return stop
+	default:
+		panic("Unsupported state")
+	}
+}
+
 func (vlc *Server) SetState(s playback.State) error {
-	req := newRequest(vlc, s.String())
+	req := newRequest(vlc, commandify(s))
 	res, err := vlc.client.Do(req)
 	if err != nil {
 		return err
