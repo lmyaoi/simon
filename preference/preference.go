@@ -9,12 +9,26 @@ import (
 	"vsync/jsonutil"
 )
 
-var defaultPreference = Preference{&jsonFormat{"1", jsonutil.Duration{1 * time.Second}, flags.VlcDefault(), make([]string, 0)}}
+var defaultPreference = &Preference{&jsonFormat{
+	"0",
+	jsonutil.Duration{Duration: time.Second},
+	flags.VlcDefault(),
+	make([]string, 0),
+}}
 
-const name = ".vsync_preferences"
+var p *Preference //singleton value
+
+const name = ".vsync_prefs"
 
 type Preference struct {
 	*jsonFormat
+}
+
+type jsonFormat struct {
+	Ver      string
+	Interval jsonutil.Duration
+	VlcPath  string
+	Hosts    []string
 }
 
 func (p *Preference) Interval() time.Duration {
@@ -29,20 +43,42 @@ func (p *Preference) Hosts() []string {
 	return p.jsonFormat.Hosts
 }
 
-type jsonFormat struct {
-	Ver      string
-	Interval jsonutil.Duration
-	VlcPath  string
-	Hosts    []string
+func New(interval time.Duration, vlcPath string, hosts []string) *Preference {
+	return &Preference{
+		&jsonFormat{
+			"0",
+			jsonutil.Duration{Duration: interval},
+			vlcPath,
+			hosts,
+		},
+	}
 }
 
 func Get() (*Preference, error) {
+	if p != nil {
+		return p, nil
+	}
 	f, err := getFile()
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	return parseFile(f)
+	p, err = parseFile(f)
+	return p, err
+}
+
+func Set(preference *Preference) error {
+	f, err := getFile()
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	err = json.NewEncoder(f).Encode(preference)
+	if err != nil {
+		return err
+	}
+	p = preference
+	return nil
 }
 
 func parseFile(f *os.File) (*Preference, error) {
@@ -51,7 +87,7 @@ func parseFile(f *os.File) (*Preference, error) {
 	if err != nil {
 		return nil, err
 	}
-	if format.Ver != "1" {
+	if format.Ver != "0" {
 		return nil, errors.New("invalid preference version")
 	}
 	return &Preference{format}, nil
