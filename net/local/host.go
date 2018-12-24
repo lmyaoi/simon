@@ -3,7 +3,6 @@ package local
 import (
 	"fmt"
 	"net/http"
-	"vsync/flags"
 	"vsync/net/playback"
 	"vsync/net/request"
 )
@@ -30,17 +29,17 @@ func (h *Host) start() {
 	panic(h.server.ListenAndServe())
 }
 
-func NewHost(playback playback.Server) *Host {
-	server := newServer(request.Handle(playback))
+func NewHost(playback playback.Server, port int) *Host {
+	server := newServer(request.Handle(playback), port)
 	control := make(chan Signal)
 	h := &Host{playback, server, control}
 	go h.start()
 	return h
 }
 
-func newServer(handler *request.Handler) *http.Server {
+func newServer(handler *request.Handler, port int) *http.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status", handler.Status())
-	addr := fmt.Sprintf("%v:%v", *flags.HostUrl, *flags.HostPort)
+	addr := fmt.Sprintf("localhost:%v", port)
 	return &http.Server{Addr: addr, Handler: mux}
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os/exec"
 	"time"
 	"vsync/log"
 	"vsync/net/httputil"
@@ -25,7 +24,6 @@ type Server struct {
 	last               *Status
 	client             *http.Client
 	username, password string
-	cmd                *exec.Cmd
 }
 
 func newRequest(vlc *Server, path string) *http.Request {
@@ -37,7 +35,7 @@ func newRequest(vlc *Server, path string) *http.Request {
 	return req
 }
 
-func New(addr *url.URL, cmd *exec.Cmd) *Server {
+func New(addr *url.URL) *Server {
 	stat := &Status{
 		&jsonStatus{
 			State:   playback.Stopped,
@@ -46,7 +44,7 @@ func New(addr *url.URL, cmd *exec.Cmd) *Server {
 			Id:      -1,
 		},
 	}
-	return &Server{addr: addr, client: &http.Client{}, last: stat, username: "", password: "q", cmd: cmd}
+	return &Server{addr: addr, client: &http.Client{}, last: stat, username: "", password: "q"}
 }
 
 func (vlc *Server) Connect() error {
