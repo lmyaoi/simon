@@ -1,13 +1,13 @@
 package local
 
 import (
+	"simon/flags"
+	"simon/log"
+	"simon/net"
+	"simon/net/playback"
+	"simon/ticker"
 	"sync"
 	"time"
-	"vsync/flags"
-	"vsync/log"
-	"vsync/net"
-	"vsync/net/playback"
-	"vsync/ticker"
 )
 
 type Client struct {
