@@ -6,14 +6,14 @@ import (
 	"log"
 	"net/url"
 	"os/exec"
+	"simon/flags"
+	"simon/net"
+	"simon/net/local"
+	"simon/net/playback"
+	"simon/net/playback/vlc"
+	"simon/net/remote"
 	"strconv"
 	"sync"
-	"vsync/flags"
-	"vsync/net"
-	"vsync/net/local"
-	"vsync/net/playback"
-	"vsync/net/playback/vlc"
-	"vsync/net/remote"
 )
 
 func main() {
