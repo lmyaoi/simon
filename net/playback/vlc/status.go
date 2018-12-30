@@ -3,8 +3,8 @@ package vlc
 import (
 	"encoding/json"
 	"io"
+	"simon/net/playback"
 	"time"
-	"vsync/net/playback"
 )
 
 type Status struct {

@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"vsync/iface"
+	"simon/iface"
 )
 
 func main() {

@@ -1,6 +1,6 @@
 package iface
 
-import "vsync/iface/cli"
+import "simon/iface/cli"
 
 type Interface interface {
 	Start()

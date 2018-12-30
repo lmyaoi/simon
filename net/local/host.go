@@ -3,8 +3,8 @@ package local
 import (
 	"fmt"
 	"net/http"
-	"vsync/net/playback"
-	"vsync/net/request"
+	"simon/net/playback"
+	"simon/net/request"
 )
 
 //go:generate stringer -type=Signal
