@@ -14,23 +14,23 @@ import (
 )
 
 var (
-	help = newCmd(_help, check(noArgs))
-	pref = newCmd(_pref, check(noArgs))
-	exit = newCmd(_exit, check(noArgs))
-	join = newCmd(_join, defaultArgs(*flags.HostUrl, strconv.Itoa(*flags.HostPort)), check(validUrl))
-	host = newCmd(_host, defaultArgs(strconv.Itoa(*flags.HostPort)), check(validPort))
+	help    = newCmd(_help, check(noArgs))
+	pref    = newCmd(_pref, check(noArgs))
+	exit    = newCmd(_exit, check(noArgs))
+	join    = newCmd(_join, defaultArgs(*flags.HostUrl, strconv.Itoa(*flags.HostPort)), check(validUrl))
+	host    = newCmd(_host, defaultArgs(strconv.Itoa(*flags.HostPort)), check(validPort))
 	vlcPort = newCmd(_vlcPort, defaultArgs(strconv.Itoa(*flags.VlcPort)), check(validPort))
 )
 
-var Cmds = map[string]Runner {
-	"help": help,
-	"list": help,
-	"host": host,
-	"join": join,
-	"exit": exit,
-	"quit": exit,
+var Cmds = map[string]Runner{
+	"help":     help,
+	"list":     help,
+	"host":     host,
+	"join":     join,
+	"exit":     exit,
+	"quit":     exit,
 	"vlc-port": vlcPort,
-	"pref": pref,
+	"pref":     pref,
 }
 
 type Runner interface {

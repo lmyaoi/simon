@@ -8,11 +8,11 @@ import (
 )
 
 type cmd struct {
-	f func([]string)
+	f    func([]string)
 	opts []option
 }
 
-func newCmd(f func([]string), opts... option) *cmd {
+func newCmd(f func([]string), opts ...option) *cmd {
 	return &cmd{f, opts}
 }
 
@@ -22,7 +22,7 @@ type _check func([]string) error
 
 func (cmd *cmd) Run(args []string) {
 	var err error
-	for _, opt := range cmd.opts  {
+	for _, opt := range cmd.opts {
 		args, err = opt(args)
 		if err != nil {
 			fmt.Println(err)
@@ -32,12 +32,15 @@ func (cmd *cmd) Run(args []string) {
 	cmd.f(args)
 }
 
-func defaultArgs(defArgs... string) option {
+func defaultArgs(defArgs ...string) option {
 	return func(args []string) ([]string, error) {
 		switch len(args) {
-		case 0: return defArgs, nil
-		case len(defArgs): return args, nil
-		default: return nil, errors.New("unsupported argument count")
+		case 0:
+			return defArgs, nil
+		case len(defArgs):
+			return args, nil
+		default:
+			return nil, errors.New("unsupported argument count")
 		}
 	}
 }
