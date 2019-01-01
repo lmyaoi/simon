@@ -3,9 +3,9 @@ package local
 import (
 	"fmt"
 	"net/http"
-	"vsync/flags"
-	"vsync/net/playback"
-	"vsync/net/request"
+	"simon/flags"
+	"simon/net/playback"
+	"simon/net/request"
 )
 
 //go:generate stringer -type=Signal

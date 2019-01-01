@@ -3,8 +3,8 @@ package httputil
 import (
 	"io/ioutil"
 	"net/http"
+	"simon/log"
 	"time"
-	"vsync/log"
 )
 
 func Discard(res *http.Response, err error) {

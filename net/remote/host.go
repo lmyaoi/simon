@@ -3,9 +3,9 @@ package remote
 import (
 	"net/http"
 	"net/url"
+	"simon/net/httputil"
+	"simon/net/playback"
 	"time"
-	"vsync/net/httputil"
-	"vsync/net/playback"
 )
 
 type Host struct {

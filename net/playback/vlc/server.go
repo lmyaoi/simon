@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"net/url"
 	"os/exec"
+	"simon/log"
+	"simon/net/httputil"
+	"simon/net/playback"
 	"time"
-	"vsync/log"
-	"vsync/net/httputil"
-	"vsync/net/playback"
 )
 
 var (
