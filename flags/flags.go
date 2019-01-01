@@ -37,3 +37,10 @@ func Vlc() string {
 	}
 	return *VlcPath
 }
+
+func VlcDefault() string {
+	if runtime.GOOS == `darwin` {
+		return VlcPathOSX + `/Contents/MacOS/VLC`
+	}
+	return VlcPathWin
+}
