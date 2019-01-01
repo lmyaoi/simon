@@ -38,11 +38,12 @@ type Runner interface {
 }
 
 func _help([]string) {
-	fmt.Println(`help, list: List all the supported commands.`)
-	fmt.Println(`join [host port]: Join a connection.`)
-	fmt.Println(`host [port]: Host a connection.`)
-	fmt.Println(`pref: Modify the stored preferences.`)
-	fmt.Println(`exit, quit: Exit the program.`)
+	fmt.Println("help, list: List all the supported commands")
+	fmt.Println("join [host port]: Join a connection")
+	fmt.Println("host [port]: Host a connection")
+	fmt.Println("vlc-port <port>: Set the vlc port to host the playback server at")
+	fmt.Println("pref: Modify the stored preferences")
+	fmt.Println("exit, quit: Exit the program")
 }
 
 func _pref([]string) {
