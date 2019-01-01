@@ -17,7 +17,7 @@ var (
 	HostPort = flag.Int("host-port", 8484, "The port on which the host listens.")
 	VlcPort  = flag.Int("vlc-port", 9090, "The port on which VLC listens.")
 	Host     = flag.Bool("host", false, "Set when host.")
-	VlcPath      = flag.String("vlc-path", _vlcPath(), "The path to the vlc executable.")
+	VlcPath  = flag.String("vlc-path", _vlcPath(), "The path to the vlc executable.")
 )
 
 func _vlcPath() string {

@@ -20,7 +20,7 @@ var (
 	join    = newCmd(_join, defaultArgs(*flags.HostUrl, strconv.Itoa(*flags.HostPort)), check(validUrl))
 	host    = newCmd(_host, defaultArgs(strconv.Itoa(*flags.HostPort)), check(validPort))
 	vlcPort = newCmd(_vlcPort, defaultArgs(strconv.Itoa(*flags.VlcPort)), check(validPort))
-	status = newCmd(_status, check(noArgs))
+	status  = newCmd(_status, check(noArgs))
 )
 
 var Cmds = map[string]Runner{
@@ -30,7 +30,7 @@ var Cmds = map[string]Runner{
 	"join":     join,
 	"exit":     exit,
 	"quit":     exit,
-	"status":	status,
+	"status":   status,
 	"vlc-port": vlcPort,
 	"pref":     pref,
 }
