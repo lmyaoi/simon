@@ -20,6 +20,7 @@ var (
 	join    = newCmd(_join, defaultArgs(*flags.HostUrl, strconv.Itoa(*flags.HostPort)), check(validUrl))
 	host    = newCmd(_host, defaultArgs(strconv.Itoa(*flags.HostPort)), check(validPort))
 	vlcPort = newCmd(_vlcPort, defaultArgs(strconv.Itoa(*flags.VlcPort)), check(validPort))
+	status = newCmd(_status, check(noArgs))
 )
 
 var Cmds = map[string]Runner{
@@ -29,6 +30,7 @@ var Cmds = map[string]Runner{
 	"join":     join,
 	"exit":     exit,
 	"quit":     exit,
+	"status":	status,
 	"vlc-port": vlcPort,
 	"pref":     pref,
 }
@@ -42,6 +44,7 @@ func _help([]string) {
 	fmt.Println("join [host port]: Join a connection")
 	fmt.Println("host [port]: Host a connection")
 	fmt.Println("vlc-port <port>: Set the vlc port to host the playback server at")
+	fmt.Println("status: Show the current environment variables")
 	fmt.Println("pref: Modify the stored preferences")
 	fmt.Println("exit, quit: Exit the program")
 }
@@ -77,4 +80,11 @@ func _host(args []string) {
 
 func _vlcPort(args []string) {
 	*flags.VlcPort, _ = strconv.Atoi(args[0])
+}
+
+func _status(args []string) {
+	fmt.Printf("host address = http://%v:%v\n", *flags.HostUrl, *flags.HostPort)
+	fmt.Printf("vlc address  = http://localhost:%v\n", *flags.VlcPort)
+	fmt.Printf("vlc path = \"%v\"\n", *flags.VlcPath)
+	fmt.Printf("interval = %v\n", *flags.Interval)
 }
