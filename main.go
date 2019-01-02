@@ -2,11 +2,11 @@ package main
 
 import (
 	"simon/iface"
-	"simon/pref"
+	"simon/conf"
 )
 
 func init() {
-	pref.Initialize()
+	conf.Initialize()
 }
 
 func main() {

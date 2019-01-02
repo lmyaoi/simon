@@ -4,7 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
+	"simon/path"
 	"strconv"
+	"time"
 )
 
 type cmd struct {
@@ -74,6 +77,19 @@ func validPort(args []string) error {
 	}
 	if i < 0 {
 		return errors.New("invalid port")
+	}
+	return nil
+}
+
+func validIval(args []string) error {
+	_, err := time.ParseDuration(args[0])
+	return err
+}
+
+func validPath(args []string) error {
+	st, err := os.Stat(path.Executable(args[0]))
+	if err != nil || st.IsDir() || st.Mode()&0111 != 0111 {
+		return fmt.Errorf("invalid path: \"%v\" must be an executable file", args[0])
 	}
 	return nil
 }

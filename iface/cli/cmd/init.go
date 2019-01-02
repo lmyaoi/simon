@@ -1,69 +1,33 @@
 package cmd
 
 import (
-	"fmt"
-	"net/url"
-	"os"
-	"simon/net/local"
-	"simon/net/playback"
-	"simon/net/playback/vlc"
-	"simon/net/remote"
-	"simon/pref"
-	"strconv"
-	"sync"
+	. "simon/conf"
+	. "strconv"
 )
 
-type Runner interface {
-	Run([]string)
+var List = make(map[string]Runner)
+
+// fetch config
+func init() {
+	Initialize()
 }
 
-func _help([]string) {
-	fmt.Println("help, list: List all the supported commands")
-	fmt.Println("join [host port]: Join a connection")
-	fmt.Println("host [port]: Host a connection")
-	fmt.Println("vlc-port <port>: Set the vlc port to host the playback server at")
-	fmt.Println("status: Show the current environment variables")
-	fmt.Println("pref: Modify the stored preferences")
-	fmt.Println("exit, quit: Exit the program")
+// populate List
+func init() {
+	List["help"] = newCmd(_help, check(noArgs))
+	List["host"] = newCmd(_host, defaultArgs(Itoa(Get().HostingPort())), check(validPort))
+	List["sethost"] = newCmd(_setHost, check(count(2)), check(validUrl))
+	List["join"] = newCmd(_join, defaultArgs(Get().HostAddr(), Itoa(Get().HostPort())), check(validUrl))
+	List["exit"] = newCmd(_exit, check(noArgs))
+	List["status"] = newCmd(_status, check(noArgs))
+	List["setvport"] = newCmd(_setvPort, check(count(1)), check(validPort))
+	List["setvpath"] = newCmd(_setvPath, check(count(1)), check(validPath))
+	List["setival"] = newCmd(_setIval, check(count(1)), check(validIval))
+	List["save"] = newCmd(_save, check(noArgs))
 }
 
-func _pref([]string) {
-	// todo: reading and writing preferences
-	fmt.Println(`todo: reading and writing preferences`)
-}
-
-func _exit([]string) {
-	os.Exit(0)
-}
-
-func _join(args []string) {
-	addr, _ := url.Parse(fmt.Sprintf("http://%v:%v", args[0], args[1]))
-	server := vlc.Start()
-	wg := &sync.WaitGroup{}
-	host := remote.NewHost(addr, vlc.Unmarshal)
-	client := local.NewClient(server, host, wg)
-	client.On()
-	wg.Wait()
-}
-
-func _host(args []string) {
-	port, _ := strconv.Atoi(args[0])
-	server := vlc.Start()
-	wg := &sync.WaitGroup{}
-	host := local.NewHost(server, port)
-	client := local.NewClient(playback.Dummy, host, wg)
-	client.On()
-	wg.Wait()
-}
-
-func _vlcPort(args []string) {
-	port, _ := strconv.Atoi(args[0])
-	pref.Get().SetVlcPort(port)
-}
-
-func _status(args []string) {
-	fmt.Printf("host address = http://%v:%v\n", pref.Get().HostUrl(), pref.Get().HostPort())
-	fmt.Printf("vlc address  = http://localhost:%v\n", pref.Get().VlcPort())
-	fmt.Printf("vlc path = \"%v\"\n", pref.Get().VlcPath())
-	fmt.Printf("interval = %v\n", pref.Get().Interval())
+// add aliases
+func init() {
+	List["list"] = List["help"]
+	List["quit"] = List["exit"]
 }

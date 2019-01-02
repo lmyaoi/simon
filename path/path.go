@@ -2,4 +2,4 @@
 
 package path
 
-const Default = ""
+const VlcDefault = ""

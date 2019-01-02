@@ -4,7 +4,7 @@ import (
 	"simon/log"
 	"simon/net"
 	"simon/net/playback"
-	"simon/pref"
+	"simon/conf"
 	"simon/ticker"
 	"sync"
 	"time"
@@ -20,7 +20,7 @@ type Client struct {
 
 func NewClient(s playback.Server, h net.Host, wg *sync.WaitGroup) *Client {
 	c := &Client{server: s, host: h, wg: wg}
-	c.signal, c.control = ticker.New(pref.Get().Interval())
+	c.signal, c.control = ticker.New(conf.Get().Interval())
 	go c.loop()
 	return c
 }
