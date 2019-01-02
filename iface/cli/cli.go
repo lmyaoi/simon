@@ -13,7 +13,7 @@ type CLI int
 func (CLI) Start() {
 	reader := bufio.NewReader(os.Stdin)
 	for {
-		fmt.Print(`> `) // request a command
+		fmt.Print("> ") // request a command
 		c, _ := reader.ReadString('\n')
 		handleCmd(c)
 	}
@@ -25,7 +25,7 @@ func handleCmd(c string) {
 	if len(args) < 1 {
 		return
 	}
-	if runner, ok := cmd.Cmds[args[0]]; ok {
+	if runner, ok := cmd.List[args[0]]; ok {
 		runner.Run(args[1:])
 	} else if len(args[0]) != 0 {
 		fmt.Printf("invalid command: \"%v\"\n", args[0])

@@ -1,11 +1,14 @@
 package main
 
 import (
-	"flag"
 	"simon/iface"
+	"simon/pref"
 )
 
+func init() {
+	pref.Initialize()
+}
+
 func main() {
-	flag.Parse()
 	iface.CLI.Start()
 }
