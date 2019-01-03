@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"simon/path"
 	"strconv"
 	"time"
 )
@@ -86,10 +85,10 @@ func validIval(args []string) error {
 	return err
 }
 
-func validPath(args []string) error {
-	st, err := os.Stat(path.Executable(args[0]))
-	if err != nil || st.IsDir() || st.Mode()&0111 != 0111 {
-		return fmt.Errorf("invalid path: \"%v\" must be an executable file", args[0])
+func validFile(args []string) error {
+	st, err := os.Stat(args[0])
+	if err != nil || st.IsDir() {
+		return fmt.Errorf("invalid path: \"%v\" must be a file", args[0])
 	}
 	return nil
 }

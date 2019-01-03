@@ -1,10 +1,10 @@
 package local
 
 import (
+	"simon/conf"
 	"simon/log"
 	"simon/net"
 	"simon/net/playback"
-	"simon/conf"
 	"simon/ticker"
 	"sync"
 	"time"

@@ -3,21 +3,10 @@ package vlc
 import (
 	"fmt"
 	"net/url"
-	"os/exec"
-	"simon/net/playback"
-	"simon/path"
 	"simon/conf"
+	"simon/net/playback"
 	"strconv"
 )
-
-func run() {
-	port := strconv.Itoa(conf.Get().VlcPort())
-	vlcArgs := []string{"--extraintf", "http", "--http-port", port, "--http-password", "q"}
-	cmd := exec.Command(path.Executable(conf.Get().VlcPath()), vlcArgs...)
-	if err := cmd.Start(); err != nil {
-		panic(err)
-	}
-}
 
 func Start() playback.Server {
 	run()

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"simon/conf"
 	"simon/net/local"
 	"simon/net/playback"
 	"simon/net/playback/vlc"
 	"simon/net/remote"
-	"simon/conf"
 	"strconv"
 	"sync"
 	"time"
@@ -66,20 +66,13 @@ func _setvPort(args []string) {
 	conf.Get().SetVlcPort(port)
 }
 
-func _setvPath(args []string) {
-	conf.Get().SetVlcPath(args[0])
-}
-
 func _setIval(args []string) {
 	interval, _ := time.ParseDuration(args[0])
 	conf.Get().SetInterval(interval)
 }
 
 func _status(args []string) {
-	fmt.Printf("host address = http://%v:%v\n", conf.Get().HostAddr(), conf.Get().HostPort())
-	fmt.Printf("vlc address  = http://localhost:%v\n", conf.Get().VlcPort())
-	fmt.Printf("vlc path = \"%v\"\n", conf.Get().VlcPath())
-	fmt.Printf("interval = %v\n", conf.Get().Interval())
+	fmt.Println(conf.Get())
 }
 
 func _save(args []string) {

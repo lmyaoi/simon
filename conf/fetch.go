@@ -5,24 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"simon/jsonutil"
-	"simon/path"
-	"time"
 )
 
 const name = ".simon_conf"
 
 var c *Config //singleton value
-
-var _default = Config{&jsonFormat{
-	curVer,
-	jsonutil.Duration{Duration: time.Second},
-	path.VlcDefault,
-	9090,
-	"localhost",
-	8484,
-	8484,
-}}
 
 func Initialize() {
 	if c != nil {
@@ -56,7 +43,9 @@ func Set(conf *Config) error {
 		return err
 	}
 	defer f.Close()
-	return json.NewEncoder(f).Encode(conf.data)
+	enc := json.NewEncoder(f)
+	enc.SetIndent("", "\t")
+	return enc.Encode(conf.data)
 }
 
 func Save() error {

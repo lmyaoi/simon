@@ -21,7 +21,6 @@ func init() {
 	List["exit"] = newCmd(_exit, check(noArgs))
 	List["status"] = newCmd(_status, check(noArgs))
 	List["setvport"] = newCmd(_setvPort, check(count(1)), check(validPort))
-	List["setvpath"] = newCmd(_setvPath, check(count(1)), check(validPath))
 	List["setival"] = newCmd(_setIval, check(count(1)), check(validIval))
 	List["save"] = newCmd(_save, check(noArgs))
 }

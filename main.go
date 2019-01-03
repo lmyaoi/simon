@@ -1,8 +1,8 @@
 package main
 
 import (
-	"simon/iface"
 	"simon/conf"
+	"simon/iface"
 )
 
 func init() {

@@ -11,14 +11,6 @@ func (p *Config) SetInterval(interval time.Duration) {
 	p.data.Interval.Duration = interval
 }
 
-func (p *Config) VlcPath() string {
-	return p.data.VlcPath
-}
-
-func (p *Config) SetVlcPath(path string) {
-	p.data.VlcPath = path
-}
-
 func (p *Config) SetVlcPort(port int) {
 	p.data.VlcPort = port
 }
