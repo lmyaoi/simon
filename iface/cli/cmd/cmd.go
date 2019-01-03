@@ -18,17 +18,11 @@ type Runner interface {
 	Run([]string)
 }
 
-func _help([]string) {
-	fmt.Println("help, list: List all the supported commands")
-	fmt.Println("join [host port]: Join a connection")
-	fmt.Println("sethost <host port>: Set the default host address to join")
-	fmt.Println("setival <interval>: Set the interval at which to poll")
-	fmt.Println("host [port]: Host a connection")
-	fmt.Println("setvport <port>: Set the vlc port to host the playback server at")
-	fmt.Println("setvpath <path>: Set the path of the vlc executable")
-	fmt.Println("status: Show the current environment variables")
-	fmt.Println("save: Save the current in memory config")
-	fmt.Println("exit, quit: Exit the program")
+func _list([]string) {
+	cs := getListKeys()
+	for _, c := range cs {
+		fmt.Printf("\t%-10s%s\n", c, "placeholder description")
+	}
 }
 
 func _exit([]string) {
@@ -68,11 +62,11 @@ func _setIval(args []string) {
 	conf.Get().Interval, _ = jsonutil.ParseDuration(args[0])
 }
 
-func _status(args []string) {
+func _status([]string) {
 	fmt.Println(conf.Get())
 }
 
-func _save(args []string) {
+func _save([]string) {
 	err := conf.Save()
 	if err != nil {
 		fmt.Println(err)

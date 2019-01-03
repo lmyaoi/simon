@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var _default = Config{&jsonFormat{
+var _default = Config{
 	curVer,
 	jsonutil.Duration{Duration: time.Second},
 	path.VlcDefault,
@@ -16,7 +16,7 @@ var _default = Config{&jsonFormat{
 	"localhost",
 	8484,
 	8484,
-}}
+}
 
 type Config struct {
 	Ver         string
