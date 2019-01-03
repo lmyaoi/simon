@@ -19,9 +19,8 @@ type Runner interface {
 }
 
 func _list([]string) {
-	cs := getListKeys()
-	for _, c := range cs {
-		fmt.Printf("\t%-10s%s\n", c, "placeholder description")
+	for _, c := range List.l {
+		fmt.Printf(fmt.Sprintf("%%-%vs%%s\n", List.cmdMaxLength+4), c, "placeholder description")
 	}
 }
 
