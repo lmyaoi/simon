@@ -10,7 +10,7 @@ import (
 
 func Start() playback.Server {
 	run()
-	port := strconv.Itoa(conf.Get().VlcPort())
+	port := strconv.Itoa(conf.Get().VlcPort)
 	addr, _ := url.Parse(fmt.Sprintf("http://localhost:%v", port))
 	server := New(addr)
 	if err := server.Connect(); err != nil {

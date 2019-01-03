@@ -9,6 +9,11 @@ type Duration struct {
 	time.Duration
 }
 
+func ParseDuration(s string) (Duration, error) {
+	d, err := time.ParseDuration(s)
+	return Duration{d}, err
+}
+
 func (d *Duration) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {

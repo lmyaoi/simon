@@ -4,11 +4,8 @@ import "encoding/json"
 
 const curVer = "v1.0.0"
 
-type Config struct {
-	data *jsonFormat
-}
 
 func (conf *Config) String() string {
-	b, _ := json.MarshalIndent(conf.data, "", "\t")
+	b, _ := json.MarshalIndent(conf, "", "\t")
 	return string(b)
 }

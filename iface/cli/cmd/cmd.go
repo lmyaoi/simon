@@ -5,13 +5,13 @@ import (
 	"net/url"
 	"os"
 	"simon/conf"
+	"simon/jsonutil"
 	"simon/net/local"
 	"simon/net/playback"
 	"simon/net/playback/vlc"
 	"simon/net/remote"
 	"strconv"
 	"sync"
-	"time"
 )
 
 type Runner interface {
@@ -46,9 +46,8 @@ func _join(args []string) {
 }
 
 func _setHost(args []string) {
-	conf.Get().SetHostAddr(args[0])
-	port, _ := strconv.Atoi(args[1])
-	conf.Get().SetHostPort(port)
+	conf.Get().HostAddr = args[0]
+	conf.Get().HostPort, _ = strconv.Atoi(args[1])
 }
 
 func _host(args []string) {
@@ -62,13 +61,11 @@ func _host(args []string) {
 }
 
 func _setvPort(args []string) {
-	port, _ := strconv.Atoi(args[0])
-	conf.Get().SetVlcPort(port)
+	conf.Get().VlcPort, _ = strconv.Atoi(args[0])
 }
 
 func _setIval(args []string) {
-	interval, _ := time.ParseDuration(args[0])
-	conf.Get().SetInterval(interval)
+	conf.Get().Interval, _ = jsonutil.ParseDuration(args[0])
 }
 
 func _status(args []string) {

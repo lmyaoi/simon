@@ -45,7 +45,7 @@ func Set(conf *Config) error {
 	defer f.Close()
 	enc := json.NewEncoder(f)
 	enc.SetIndent("", "\t")
-	return enc.Encode(conf.data)
+	return enc.Encode(conf)
 }
 
 func Save() error {
@@ -53,15 +53,15 @@ func Save() error {
 }
 
 func parseFile(f *os.File) (*Config, error) {
-	format := &jsonFormat{}
-	err := json.NewDecoder(f).Decode(format)
+	conf := &Config{}
+	err := json.NewDecoder(f).Decode(conf)
 	if err != nil {
 		return nil, err
 	}
-	if format.Ver != curVer {
+	if conf.Ver != curVer {
 		return nil, errors.New("invalid preference version")
 	}
-	return &Config{format}, nil
+	return conf, nil
 }
 
 func getFile(flags int) (*os.File, error) {
@@ -80,5 +80,5 @@ func createFile(path string) error {
 		return err
 	}
 	defer f.Close()
-	return json.NewEncoder(f).Encode(_default.data) // write default to new file
+	return json.NewEncoder(f).Encode(_default) // write default to new file
 }

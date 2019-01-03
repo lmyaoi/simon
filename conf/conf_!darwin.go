@@ -18,7 +18,7 @@ var _default = Config{&jsonFormat{
 	8484,
 }}
 
-type jsonFormat struct {
+type Config struct {
 	Ver         string
 	Interval    jsonutil.Duration
 	VlcPath     string
@@ -30,14 +30,12 @@ type jsonFormat struct {
 
 func New(interval time.Duration, vlcPath, hostUrl string, hostPort, hostingPort int) *Config {
 	return &Config{
-		&jsonFormat{
-			curVer,
-			jsonutil.Duration{Duration: interval},
-			vlcPath,
-			9090,
-			hostUrl,
-			hostPort,
-			hostingPort,
-		},
+		curVer,
+		jsonutil.Duration{Duration: interval},
+		vlcPath,
+		9090,
+		hostUrl,
+		hostPort,
+		hostingPort,
 	}
 }
