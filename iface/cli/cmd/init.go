@@ -6,19 +6,19 @@ import (
 )
 
 var es = make([]*el, 0)
-var L *List
+var Bin *List
 
 var (
-	list = &el{}
-	man = &el{}
-	host = &el{}
-	setHost = &el{}
-	join = &el{}
+	list     = &el{}
+	man      = &el{}
+	host     = &el{}
+	setHost  = &el{}
+	join     = &el{}
 	setVPort = &el{}
-	setIval = &el{}
-	status = &el{}
-	save = &el{}
-	exit = &el{}
+	setIval  = &el{}
+	status   = &el{}
+	save     = &el{}
+	exit     = &el{}
 )
 
 func init() {
@@ -117,9 +117,9 @@ func init() {
 		status,
 		save,
 		exit,
-		)
+	)
 }
 
 func Init() {
-	L = newList(es...)
+	Bin = newList(es...)
 }

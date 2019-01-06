@@ -19,11 +19,11 @@ type Runner interface {
 }
 
 func _list([]string) {
-	fmt.Print(L.String())
+	fmt.Print(Bin.String())
 }
 
 func _man(args []string) {
-	m, ok := L.Man(args[0])
+	m, ok := Bin.Man(args[0])
 	if ok {
 		fmt.Print(m)
 	} else {

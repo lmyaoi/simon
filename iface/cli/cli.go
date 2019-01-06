@@ -27,7 +27,7 @@ func handleCmd(c string) {
 	if len(args) < 1 {
 		return
 	}
-	if runner, ok := cmd.L.Get(args[0]); ok {
+	if runner, ok := cmd.Bin.Get(args[0]); ok {
 		runner.Run(args[1:])
 	} else if len(args[0]) != 0 {
 		fmt.Printf("invalid command: \"%v\"\n", args[0])

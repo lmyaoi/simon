@@ -7,8 +7,8 @@ import (
 )
 
 type List struct {
-	lookup      map[string]*el
-	order        []string
+	lookup        map[string]*el
+	order         []string
 	maxLengthName int
 }
 
@@ -19,7 +19,7 @@ type el struct {
 	Man  string
 }
 
-func newList(es... *el) *List {
+func newList(es ...*el) *List {
 	l := &List{lookup: make(map[string]*el, len(es)), order: make([]string, len(es))}
 	for i, e := range es {
 		l.lookup[e.Name] = e
