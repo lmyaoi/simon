@@ -19,8 +19,15 @@ type Runner interface {
 }
 
 func _list([]string) {
-	for _, c := range List.l {
-		fmt.Printf(fmt.Sprintf("%%-%vs%%s\n", List.cmdMaxLength+4), c, "placeholder description")
+	fmt.Print(L.String())
+}
+
+func _man(args []string) {
+	m, ok := L.Man(args[0])
+	if ok {
+		fmt.Print(m)
+	} else {
+		fmt.Printf("invalid command \"%s\"", args[0])
 	}
 }
 
