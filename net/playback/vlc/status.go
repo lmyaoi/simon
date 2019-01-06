@@ -17,6 +17,15 @@ type jsonStatus struct {
 	Id           int
 }
 
+var DefaultStatus = Status{
+	&jsonStatus{
+		State:   playback.Stopped,
+		Pos:     time.Unix(0, 0),
+		Created: time.Now(),
+		Id:      -1,
+	},
+}
+
 func NewStatus(body io.Reader) *Status {
 	s := parseJSON(body)
 	return &Status{
@@ -61,7 +70,7 @@ func (s *Status) Id() int {
 	return s.jsonStatus.Id
 }
 
-func verify(s playback.Status) *Status {
+func Verify(s playback.Status) *Status {
 	t, ok := s.(*Status)
 	if !ok {
 		panic("Unexpected playback.Status implementation. Expected vlc.Status.")
