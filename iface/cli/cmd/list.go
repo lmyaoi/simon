@@ -54,7 +54,7 @@ func (l *List) Man(key string) (string, bool) {
 
 func (l *List) String() string {
 	builder := &strings.Builder{}
-	format := fmt.Sprint("\033[1m", `%-`, l.maxLengthName+4, `s`, "\033[0m", `%s`, "\n")
+	format := fmt.Sprint("\033", "[1m", `%-`, l.maxLengthName+4, `s`, "\033", "[0m", `%s`, "\n")
 	for _, name := range l.order {
 		_, _ = fmt.Fprintf(builder, format, name, l.lookup[name].Desc)
 	}
