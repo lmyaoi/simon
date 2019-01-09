@@ -65,16 +65,15 @@ func parseFile(f *os.File) (*Config, error) {
 }
 
 func getFile(flags int) (*os.File, error) {
-	filepath := fmt.Sprintf("%v%c%v", os.Getenv("HOME"), os.PathSeparator, name)
-	if _, err := os.Stat(filepath); os.IsNotExist(err) {
-		if err = createFile(filepath); err != nil {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if err = createFile(); err != nil {
 			return nil, err
 		}
 	}
-	return os.OpenFile(filepath, flags, 0666)
+	return os.OpenFile(path, flags, 0666)
 }
 
-func createFile(path string) error {
+func createFile() error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err

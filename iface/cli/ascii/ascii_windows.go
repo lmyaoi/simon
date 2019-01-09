@@ -1,3 +1,3 @@
 package ascii
 
-const ESC = "^["
+const ESC = "\033"
