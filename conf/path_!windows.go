@@ -7,4 +7,4 @@ import (
 	"os"
 )
 
-var path = fmt.Sprintf("%v%c%v", os.Getenv("HOME"), os.PathSeparator, name)
+var filepath = fmt.Sprintf("%v%c%v", os.Getenv("HOME"), os.PathSeparator, name)

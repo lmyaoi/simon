@@ -65,16 +65,16 @@ func parseFile(f *os.File) (*Config, error) {
 }
 
 func getFile(flags int) (*os.File, error) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath); os.IsNotExist(err) {
 		if err = createFile(); err != nil {
 			return nil, err
 		}
 	}
-	return os.OpenFile(path, flags, 0666)
+	return os.OpenFile(filepath, flags, 0666)
 }
 
 func createFile() error {
-	f, err := os.Create(path)
+	f, err := os.Create(filepath)
 	if err != nil {
 		return err
 	}
