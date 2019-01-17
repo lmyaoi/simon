@@ -5,4 +5,4 @@ import (
 	"os"
 )
 
-var filepath = fmt.Sprintf("%v%c%v", os.Getenv("HOMEPATH"), os.PathSeparator, name)
+var filepath = fmt.Sprintf("%v%c%v", os.Getenv("USERPROFILE"), os.PathSeparator, name)
