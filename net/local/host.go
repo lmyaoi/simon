@@ -40,6 +40,6 @@ func NewHost(playback playback.Server, port int) *Host {
 func newServer(handler *request.Handler, port int) *http.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status", handler.Status())
-	addr := fmt.Sprintf("localhost:%v", port)
+	addr := fmt.Sprintf(":%v", port)
 	return &http.Server{Addr: addr, Handler: mux}
 }
