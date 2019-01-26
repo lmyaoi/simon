@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"simon/conf"
 	"simon/log"
 	"simon/net/httputil"
 	"simon/net/playback"
+	"simon/ticker"
 	"time"
 )
 
@@ -21,9 +23,12 @@ var (
 
 type Server struct {
 	addr               *url.URL
-	last               *Status
+	polled             *playback.Buffer
+	set                *playback.Buffer
 	client             *http.Client
 	username, password string
+	control            chan<- ticker.Signal
+	signal             <-chan time.Time
 }
 
 func newRequest(vlc *Server, path string) *http.Request {
@@ -36,8 +41,19 @@ func newRequest(vlc *Server, path string) *http.Request {
 }
 
 func New(addr *url.URL) *Server {
-	stat := DefaultStatus
-	return &Server{addr: addr, client: &http.Client{}, last: &stat, username: "", password: "q"}
+	signal, control := ticker.New(conf.Get().Interval.Duration)
+	s := &Server{
+		addr:     addr,
+		client:   &http.Client{},
+		polled:   playback.NewBuffer(),
+		set:      playback.NewBuffer(),
+		username: "",
+		password: "q",
+		control:  control,
+		signal:   signal,
+	}
+	go s.loop()
+	return s
 }
 
 func (server *Server) Connect() error {
@@ -46,7 +62,7 @@ func (server *Server) Connect() error {
 	if err != nil {
 		return err
 	}
-	server.last = NewStatus(res.Body)
+	server.polled.Push(NewStatus(res.Body))
 	return nil
 }
 
@@ -63,61 +79,90 @@ func commandify(state playback.State) string {
 	}
 }
 
-func (server *Server) SetState(s playback.State) error {
+func (server *Server) setState(s playback.State) error {
+	server.set.Pop()
 	req := newRequest(server, commandify(s))
 	res, err := server.client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer httputil.Discard(res, err)
-	defer func() {
-		if _, err := server.Status(); err != nil {
-			log.Println(err)
-		}
-	}()
+	server.polled.Push(NewStatus(res.Body))
 	return nil
 }
 
 func (server *Server) Start() error {
-	return server.SetState(playback.Playing)
+	return server.setState(playback.Playing)
 }
 
 func (server *Server) Pause() error {
-	return server.SetState(playback.Paused)
+	return server.setState(playback.Paused)
 }
 
 func (server *Server) Stop() error {
-	return server.SetState(playback.Stopped)
+	return server.setState(playback.Stopped)
 }
 
-func (server *Server) Sync(stat playback.Status) error {
-	s := Verify(stat)
+func (server *Server) forceSync(s playback.Status) error {
+	if s == nil {
+		return nil
+	}
+	status := Verify(s)
 	// todo: handle playlists
-
-	if server.last.State() != s.State() {
-		if err := server.SetState(s.State()); err != nil {
+	polledStatus := server.polled.Peek()
+	if polledStatus == nil || polledStatus.State() != status.State() {
+		if err := server.setState(status.State()); err != nil {
 			return err
 		}
-		server.seek(playback.Now(s).Unix())
-	} else if playback.WorthSeeking(server.last, s) {
-		server.seek(playback.Now(s).Unix())
+		server.seek(playback.Now(status).Unix())
+	} else if playback.WorthSeeking(polledStatus, status) {
+		server.seek(playback.Now(status).Unix())
 	}
 	return nil
 }
 
+func (server *Server) Sync(s playback.Status) error {
+	server.set.Push(s)
+	return nil
+}
+
+func (server *Server) loop() {
+	for {
+		select {
+		case <-server.signal:
+			if err := server.forceSync(server.set.Pop()); err != nil {
+				log.Println(err)
+			}
+		}
+	}
+}
+
 func (server *Server) seek(s int64) {
 	req := newRequest(server, seek(s))
-	httputil.Discard(server.client.Do(req))
+
+	res, err := server.client.Do(req)
+	if err != nil {
+		return
+	}
+	defer httputil.Discard(res, err)
+	server.polled.Push(NewStatus(res.Body))
 }
 
 func (server *Server) jump(id int) {
 	req := newRequest(server, jump(id))
-	httputil.Discard(server.client.Do(req))
+
+	res, err := server.client.Do(req)
+	if err != nil {
+		return
+	}
+	defer httputil.Discard(res, err)
+	server.polled.Push(NewStatus(res.Body))
 }
 
 func (server *Server) Status() (playback.Status, error) {
-	if !server.staleLast() {
-		return server.last, nil
+	polledStatus := server.polled.Peek()
+	if !playback.Stale(polledStatus) {
+		return polledStatus, nil
 	}
 
 	req := newRequest(server, status)
@@ -127,14 +172,23 @@ func (server *Server) Status() (playback.Status, error) {
 	}
 	defer httputil.Discard(res, err)
 
-	server.last = NewStatus(res.Body)
-	return server.last, nil
+	status := NewStatus(res.Body)
+	server.polled.Push(status)
+	return status, nil
 }
 
-func (server *Server) staleLast() bool {
-	return time.Now().Sub(server.last.Created()) > time.Second
+func (server *Server) Polled() playback.Status {
+	return server.polled.Peek()
 }
 
-func (server *Server) Last() playback.Status {
-	return server.last
+func (server *Server) On() {
+	server.control <- ticker.On
+}
+
+func (server *Server) Off() {
+	server.control <- ticker.Off
+}
+
+func (server *Server) Kill() {
+	server.control <- ticker.Kill
 }

@@ -7,11 +7,14 @@ import (
 )
 
 type Server interface {
-	Connect() error             // connects to the playback server
-	SetState(state State) error // sets playback state
-	Sync(Status) error          // syncs playback
-	Status() (Status, error)    // request current playback status
-	Last() Status               // request last requested playback status
+	Connect() error // connects to the playback server
+	//SetState(state State) error // sets playback state
+	Sync(Status) error       // syncs playback
+	Status() (Status, error) // request current playback status
+	Polled() Status          // return the last polled playback status
+	On()
+	Off()
+	Kill()
 }
 
 type dummy int
@@ -22,7 +25,10 @@ func (dummy) Connect() error             { return nil }      // connects to the 
 func (dummy) SetState(state State) error { return nil }      // sets playback state
 func (dummy) Sync(Status) error          { return nil }      // syncs playback
 func (dummy) Status() (Status, error)    { return nil, nil } // request current playback status
-func (dummy) Last() Status               { return nil }      // request last requested playback status
+func (dummy) Polled() Status             { return nil }      // return the last polled playback status
+func (dummy) On()                        {}                  // return the last polled playback status
+func (dummy) Off()                       {}                  // return the last polled playback status
+func (dummy) Kill()                      {}                  // return the last polled playback status
 
 type Status interface {
 	State() State
@@ -50,6 +56,10 @@ func WorthSeeking(s1, s2 Status) bool {
 		diff = -diff
 	}
 	return diff > time.Second
+}
+
+func Stale(s Status) bool {
+	return s == nil || time.Now().Sub(s.Created()) > time.Second
 }
 
 //go:generate stringer -type=State

@@ -11,16 +11,17 @@ import (
 )
 
 type Client struct {
-	server  playback.Server
-	host    net.Host
-	control chan<- ticker.Signal
-	signal  <-chan time.Time
-	wg      *sync.WaitGroup
+	server                       playback.Server
+	host                         net.Host
+	playbackControl, hostControl chan<- ticker.Signal
+	playbackSignal, hostSignal   <-chan time.Time
+	wg                           *sync.WaitGroup
 }
 
 func NewClient(s playback.Server, h net.Host, wg *sync.WaitGroup) *Client {
 	c := &Client{server: s, host: h, wg: wg}
-	c.signal, c.control = ticker.New(conf.Get().Interval.Duration)
+	c.playbackSignal, c.playbackControl = ticker.New(conf.Get().Interval.Duration)
+	c.hostSignal, c.hostControl = ticker.New(conf.Get().Interval.Duration)
 	go c.loop()
 	return c
 }
@@ -28,10 +29,11 @@ func NewClient(s playback.Server, h net.Host, wg *sync.WaitGroup) *Client {
 func (c *Client) loop() {
 	for {
 		select {
-		case <-c.signal:
+		case <-c.playbackSignal:
 			if _, err := c.server.Status(); err != nil {
 				log.Println(err)
 			}
+		case <-c.hostSignal:
 			if stat, err := c.host.Status(); err != nil {
 				log.Println(err)
 			} else if err := c.server.Sync(stat); err != nil {
@@ -43,14 +45,20 @@ func (c *Client) loop() {
 
 func (c *Client) On() {
 	c.wg.Add(1)
-	c.control <- ticker.On
+	c.playbackControl <- ticker.On
+	c.hostControl <- ticker.On
+	c.server.On()
 }
 
 func (c *Client) Off() {
-	c.control <- ticker.Off
+	c.playbackControl <- ticker.Off
+	c.hostControl <- ticker.Off
+	c.server.Off()
 }
 
 func (c *Client) Kill() {
 	c.wg.Done()
-	c.control <- ticker.Kill
+	c.playbackControl <- ticker.Kill
+	c.hostControl <- ticker.Kill
+	c.server.Kill()
 }
