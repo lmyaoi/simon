@@ -114,13 +114,13 @@ func (server *Server) forceSync(s playback.Status) error {
 	}
 	status := Verify(s)
 	// todo: handle playlists
-	polledStatus := server.polled.Peek()
-	if polledStatus == nil || polledStatus.State() != status.State() {
+	latest := server.Last()
+	if latest == nil || latest.State() != status.State() {
 		if err := server.setState(status.State()); err != nil {
 			return err
 		}
 		server.seek(playback.Now(status).Unix())
-	} else if playback.WorthSeeking(polledStatus, status) {
+	} else if playback.WorthSeeking(latest, status) {
 		server.seek(playback.Now(status).Unix())
 	}
 	return nil
@@ -135,7 +135,7 @@ func (server *Server) loop() {
 	for {
 		select {
 		case <-server.signal:
-			if err := server.forceSync(server.offered.Pop()); err != nil {
+			if err := server.forceSync(server.offered.Peek()); err != nil {
 				log.Println(err)
 			}
 		}
