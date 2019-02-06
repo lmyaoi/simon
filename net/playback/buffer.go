@@ -7,11 +7,7 @@ import (
 
 type Buffer struct {
 	s   Status
-	mux *sync.Mutex
-}
-
-func NewBuffer() *Buffer {
-	return &Buffer{nil, &sync.Mutex{}}
+	mux sync.Mutex
 }
 
 func (b *Buffer) Push(s Status) {
@@ -30,7 +26,5 @@ func (b *Buffer) Pop() Status {
 	return s
 }
 func (b *Buffer) Peek() Status {
-	b.mux.Lock()
-	defer b.mux.Unlock()
 	return b.s
 }

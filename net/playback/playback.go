@@ -11,7 +11,7 @@ type Server interface {
 	//SetState(state State) error // sets playback state
 	Sync(Status) error       // syncs playback
 	Status() (Status, error) // request current playback status
-	Polled() Status          // return the last polled playback status
+	Last() Status            // return the latest playback status
 	On()
 	Off()
 	Kill()
@@ -25,7 +25,7 @@ func (dummy) Connect() error             { return nil }      // connects to the 
 func (dummy) SetState(state State) error { return nil }      // sets playback state
 func (dummy) Sync(Status) error          { return nil }      // syncs playback
 func (dummy) Status() (Status, error)    { return nil, nil } // request current playback status
-func (dummy) Polled() Status             { return nil }      // return the last polled playback status
+func (dummy) Last() Status               { return nil }      // return the latest playback status
 func (dummy) On()                        {}                  // return the last polled playback status
 func (dummy) Off()                       {}                  // return the last polled playback status
 func (dummy) Kill()                      {}                  // return the last polled playback status

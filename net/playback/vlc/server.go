@@ -24,7 +24,7 @@ var (
 type Server struct {
 	addr               *url.URL
 	polled             *playback.Buffer
-	set                *playback.Buffer
+	offered            *playback.Buffer
 	client             *http.Client
 	username, password string
 	control            chan<- ticker.Signal
@@ -45,8 +45,8 @@ func New(addr *url.URL) *Server {
 	s := &Server{
 		addr:     addr,
 		client:   &http.Client{},
-		polled:   playback.NewBuffer(),
-		set:      playback.NewBuffer(),
+		polled:   &playback.Buffer{},
+		offered:  &playback.Buffer{},
 		username: "",
 		password: "q",
 		control:  control,
@@ -62,6 +62,7 @@ func (server *Server) Connect() error {
 	if err != nil {
 		return err
 	}
+	defer httputil.Discard(res, err)
 	server.polled.Push(NewStatus(res.Body))
 	return nil
 }
@@ -80,14 +81,18 @@ func commandify(state playback.State) string {
 }
 
 func (server *Server) setState(s playback.State) error {
-	server.set.Pop()
 	req := newRequest(server, commandify(s))
 	res, err := server.client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer httputil.Discard(res, err)
-	server.polled.Push(NewStatus(res.Body))
+
+	stat := NewStatus(res.Body)
+	go server.polled.Push(stat) //update last polled status
+	stat = stat.Copy()
+	stat.SetState(s)
+	go server.offered.Push(stat) //update last offered status
 	return nil
 }
 
@@ -122,7 +127,7 @@ func (server *Server) forceSync(s playback.Status) error {
 }
 
 func (server *Server) Sync(s playback.Status) error {
-	server.set.Push(s)
+	go server.offered.Push(s)
 	return nil
 }
 
@@ -130,7 +135,7 @@ func (server *Server) loop() {
 	for {
 		select {
 		case <-server.signal:
-			if err := server.forceSync(server.set.Pop()); err != nil {
+			if err := server.forceSync(server.offered.Pop()); err != nil {
 				log.Println(err)
 			}
 		}
@@ -145,7 +150,12 @@ func (server *Server) seek(s int64) {
 		return
 	}
 	defer httputil.Discard(res, err)
-	server.polled.Push(NewStatus(res.Body))
+
+	stat := NewStatus(res.Body)
+	go server.polled.Push(stat) //update last polled status
+	stat = stat.Copy()
+	stat.SetPos(s)
+	go server.offered.Push(stat) //update last offered status
 }
 
 func (server *Server) jump(id int) {
@@ -156,7 +166,12 @@ func (server *Server) jump(id int) {
 		return
 	}
 	defer httputil.Discard(res, err)
-	server.polled.Push(NewStatus(res.Body))
+
+	stat := NewStatus(res.Body)
+	go server.polled.Push(stat) //update last polled status
+	stat = stat.Copy()
+	stat.SetId(id)
+	go server.offered.Push(stat) //update last offered status
 }
 
 func (server *Server) Status() (playback.Status, error) {
@@ -177,8 +192,13 @@ func (server *Server) Status() (playback.Status, error) {
 	return status, nil
 }
 
-func (server *Server) Polled() playback.Status {
-	return server.polled.Peek()
+func (server *Server) Last() playback.Status {
+	polled := server.polled.Peek()
+	offered := server.offered.Peek()
+	if offered == nil || polled == nil || offered.Created().After(polled.Created()) {
+		return polled
+	}
+	return offered
 }
 
 func (server *Server) On() {

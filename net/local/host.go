@@ -22,7 +22,7 @@ type Host struct {
 }
 
 func (h *Host) Status() (playback.Status, error) {
-	return h.playback.Polled(), nil
+	return h.playback.Last(), nil
 }
 
 func (h *Host) start() {

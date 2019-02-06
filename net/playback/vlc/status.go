@@ -58,8 +58,16 @@ func (s *Status) State() playback.State {
 	return s.jsonStatus.State
 }
 
+func (s *Status) SetState(state playback.State) {
+	s.jsonStatus.State = state
+}
+
 func (s *Status) Pos() time.Time {
 	return s.jsonStatus.Pos
+}
+
+func (s *Status) SetPos(p int64) {
+	s.jsonStatus.Pos = time.Unix(p, 0)
 }
 
 func (s *Status) Created() time.Time {
@@ -68,6 +76,21 @@ func (s *Status) Created() time.Time {
 
 func (s *Status) Id() int {
 	return s.jsonStatus.Id
+}
+
+func (s *Status) SetId(id int) {
+	s.jsonStatus.Id = id
+}
+
+func (s *Status) Copy() *Status {
+	return &Status{
+		&jsonStatus{
+			State:   s.jsonStatus.State,
+			Pos:     s.jsonStatus.Pos,
+			Created: time.Now(),
+			Id:      s.jsonStatus.Id,
+		},
+	}
 }
 
 func Verify(s playback.Status) *Status {
